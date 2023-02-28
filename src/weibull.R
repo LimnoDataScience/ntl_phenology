@@ -17,12 +17,11 @@ ggplot(secchi) +
 
 C = sum(D*xd) / sum(xd)
 
-usedata = secchi |> filter(lakeid == 'ME', year4 == 2017)
+usedata = secchi |> filter(lakeid == 'ME', year4 == 2012)
 res <- fitweibull6(usedata$daynum, usedata$secnview)
 res$r2
 plot(res)
 points(usedata$daynum, usedata$secnview, col = 'blue', pch = 16)
-
 
 
 usedata = epi_min |> filter(lakeid == 'BM', item == 'totpuf', year4 == 2012) |> 
@@ -100,7 +99,7 @@ for (i in 1:length(lakenames)) {
   for (ii in 1:length(years)) {
     usedata = secchi |> filter(lakeid == lakenames[i], year4 == years[ii]) 
     
-    usedata = secchi |> filter(lakeid == 'ME', year4 == 2017) 
+    # usedata = secchi |> filter(lakeid == 'ME', year4 == 2017) 
     
     if (nrow(usedata) < 8) {
       weibull.secchi.list[[paste0(lakenames[i], years[ii])]] = 
