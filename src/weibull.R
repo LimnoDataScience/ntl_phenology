@@ -144,7 +144,8 @@ weibull.secchi |>
 weibull.secchi |> 
   filter(dayWeibull > 0) |> 
   ggplot() +
-  geom_density(aes(x = dayWeibull)) +
+  geom_density(aes(x = dayWeibull)) + 
+  geom_density(data = s.openwater.max, aes(x = daynum), col = 'lightblue4') +
   facet_wrap(~lakeid)
 
 
