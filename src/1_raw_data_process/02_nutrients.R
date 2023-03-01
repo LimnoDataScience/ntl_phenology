@@ -42,7 +42,7 @@ nutrients <- function(ice_file, path_out) {
     pivot_longer(-(lakeid:event), names_to = c('.value','item'), names_sep = '_') %>%
     filter(!is.na(value) & value>= 0) %>%
     # filter(!str_detect(error,'A|K|L|H|Q') | is.na(error)) %>%
-    filter(!str_detect(error,'A|K|H|Q') | is.na(error)) %>% #Removed L
+    filter(!str_detect(error,'A|K|H') | is.na(error)) %>% #Removed L and Q
     dplyr::select(-error) %>% 
     mutate(value = case_when(str_detect(item, ".sloh") ~ value*1000, #change sloh from mg to µg
                              TRUE ~ value)) %>% 
@@ -51,9 +51,11 @@ nutrients <- function(ice_file, path_out) {
   
   # Exclude outliers based on statistics. Remove < 5th and > 95th percentile
   lternuts.flagged = lternuts.flagged |> 
-    mutate(value = filter_lims(value))
-  
- 
+    group_by(lakeid, item) |> 
+    mutate(value = filter_lims(value)) |> 
+    ungroup() |> 
+    filter(!is.na(value))
+
   # get ice on/off dates
   ice0 = read_csv(ice_file) |> 
     filter(metric == 'iceoff') |> 
@@ -67,21 +69,21 @@ nutrients <- function(ice_file, path_out) {
     filter(depth == max(depth)) |> 
     rename(maxDepth = depth)
   
-  # Limit to surface or bottom and exclude years with < 9 measurements in that year
+  # Limit to surface or bottom and exclude years with < 8 measurements in that year
   surfNuts = lternuts.flagged |> filter(depth <= 1) |> 
     group_by(lakeid, year4, daynum, sampledate, item) |> 
     summarise(value = mean(value, na.rm = T)) |> 
     mutate(layer = 'surf') |> 
     group_by(lakeid, year4, item) |> 
-    filter(n() >= 9)
+    filter(n() >= 8)
     
   botNuts = lternuts.flagged |> left_join(maxDepths) |> 
-    filter(depth == maxDepth) |> 
+    dplyr::filter(depth == maxDepth) |> 
     group_by(lakeid, year4, daynum, sampledate, item) |> 
     summarise(value = mean(value, na.rm = T)) |> 
     mutate(layer = 'bot') |> 
     group_by(lakeid, year4, item) |> 
-    filter(n() >= 9)
+    filter(n() >= 8)
   
   #################### MANIPULATE DATA ####################
   

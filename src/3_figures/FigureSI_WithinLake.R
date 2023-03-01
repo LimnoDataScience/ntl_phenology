@@ -43,9 +43,15 @@ figureSI_withinLake <- function(path_in, path_out) {
     
     ###### Compute a correlation matrix ######
     all_na <- function(x) all(is.na(x))
-    useVars.na = useVars |>  mutate(
-      across(where(all_na), ~replace_na(.x, 0))
-    )
+    na5 <- function(x) sum(!is.na(x)) < 5
+    
+    useVars.na = useVars |>  
+      mutate(
+        across(where(all_na), ~replace_na(.x, 0))
+      ) |> 
+      mutate(
+        across(where(na5), ~0) # replace any data with less than 5 measurements with 0
+      )
     
     usecorr <- round(cor(useVars.na,use = "pairwise.complete.obs", method = 'pearson'), 2)
     # Compute a matrix of correlation p-values

@@ -132,8 +132,13 @@ for (i in 1:length(lakenames)) {
   } 
 }
 
-weibull.secchi = do.call(rbind.data.frame, weibull.secchi.list)
+weibull.secchi = do.call(rbind.data.frame, weibull.secchi.list) |> 
+  as_tibble()
 
+weibull.secchi |> group_by(lakeid) |> 
+  summarise(n = n(), na = sum(dayWeibull == -999, na.rm = T)) |> 
+  mutate(fit = 100*na/n) |> 
+  arrange(fit)
 
 weibull.secchi |> 
   filter(dayWeibull > 0) |> 
@@ -148,6 +153,12 @@ weibull.secchi |>
   geom_density(data = s.openwater.max, aes(x = daynum), col = 'lightblue4') +
   facet_wrap(~lakeid)
 
+weibull.secchi |> select(lakeid, year, dayWeibull) |> 
+  mutate(useWeibull = if_else(dayWeibull < 0, 0, dayWeibull)) |> 
+  left_join(s.openwater.max |> select(lakeid, year = year4, daynum)) |> 
+  ggplot() +
+  geom_point(aes(x = daynum, y = useWeibull)) +
+  facet_wrap(~lakeid)
 
 ######### hyponuts #####################
 hyponuts = hypo_max |> filter(item == 'totpuf')
@@ -192,6 +203,10 @@ for (i in 1:length(lakenames)) {
 
 weibull.hyponuts = do.call(rbind.data.frame, weibull.hyponuts.list)
 
+weibull.hyponuts |> group_by(lakeid) |> 
+  summarise(n = n(), na = sum(dayWeibull == -999, na.rm = T)) |> 
+  mutate(fit = 100*na/n) |> 
+  arrange(fit)
 
 weibull.hyponuts |> 
   filter(dayWeibull > 0) |> 
@@ -203,5 +218,6 @@ weibull.hyponuts |>
   filter(dayWeibull > 0) |> 
   ggplot() +
   geom_density(aes(x = dayWeibull)) +
+  geom_density(data = hypo_max |> filter(metric == 'totpuf_hypoMax'), aes(x = daynum), col = 'lightblue4') +
   facet_wrap(~lakeid)
 
