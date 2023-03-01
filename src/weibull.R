@@ -74,8 +74,20 @@ for (i in 1:length(lakenames)) {
   } 
 }
 
-weibull.zoop = do.call(rbind.data.frame, weibull.zoop.list)
+weibull.zoop = do.call(rbind.data.frame, weibull.zoop.list) |> 
+  as_tibble()
 
+weibull.zoop |> group_by(lakeid) |>  
+  summarise(n = n(), na = sum(dayWeibull == -999, na.rm = T)) |> 
+  mutate(fit = 100*na/n) |> 
+  arrange(fit)
+
+weibull.zoop |> 
+  filter(!is.na(dayWeibull)) |> 
+  group_by(lakeid) |> 
+  filter(n() > 5) |> 
+  summarise(statistic = shapiro.test(dayWeibull)$statistic,
+          p.value = shapiro.test(dayWeibull)$p.value)
 
 weibull.zoop |> 
   filter(dayWeibull > 0) |> 
@@ -87,10 +99,21 @@ weibull.zoop |>
   filter(dayWeibull > 0) |> 
   ggplot() +
   geom_density(aes(x = dayWeibull)) +
+  geom_density(data = zoopDensity.cc |> group_by(lakeid, year4) |> 
+                 slice_max(density) |> 
+                 mutate(metric = 'zoopDensity', 
+                 daynum = yday(sample_date)), aes(x = daynum), col = 'lightblue4') +
   facet_wrap(~lakeid)
 
 ######### Secchi #####################
 secchi
+
+d1 <- crossing(lakeid = unique(secchi$lakeid), year = unique(secchi$year4))
+weibull.list = purrr::map2(d1$lakeid, d1$year, weibull, df = secchi, var = 'secnview')
+do.call(rbind.data.frame, weibull.list)
+
+
+secchi.mapply = mapply(weibull, lakeid = unique(secchi$lakeid), year = unique(secchi$year4), MoreArgs = list(df = secchi, var = 'secnview'))
 
 lakenames = unique(secchi$lakeid)
 years = unique(secchi$year4)
