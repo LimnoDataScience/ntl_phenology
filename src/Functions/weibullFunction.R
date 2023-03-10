@@ -1,3 +1,4 @@
+require(cardidates)
 weibull <- function(uselake, useyear, df, var, find = 'max', datacutoff = 8) {
     
   usedata = df |> filter(lakeid == uselake, year == useyear) 
@@ -32,5 +33,5 @@ weibull <- function(uselake, useyear, df, var, find = 'max', datacutoff = 8) {
     return(output)
 }
 
-weibull(df = secchi |> filter(yday(sampledate) < 200), uselake = 'ME', useyear = 2008, var = 'secnview', find = 'max')
-weibull(df = secchi, uselake = 'ME', useyear = 2012, var = 'secnview', find = 'max')
+# weibull(df = secchi |> filter(yday(sampledate) < 200), uselake = 'ME', useyear = 2008, var = 'secnview', find = 'max')
+# weibull(df = secchi, uselake = 'ME', useyear = 2012, var = 'secnview', find = 'max')

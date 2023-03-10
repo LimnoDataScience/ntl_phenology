@@ -38,7 +38,8 @@ icedates <- function(path_out) {
     mutate(daynum = if_else(month(sampledate) <= 4, daynum + 365, daynum)) |> 
     mutate(year = if_else(month(sampledate) <= 4, year - 1, year))
     
-  ice = iceOFF |> bind_rows(iceON)
+  ice = iceOFF |> bind_rows(iceON) |> 
+    mutate(dayWeibull = NA, weibull.r2 = NA)
   
   ### write derived data
   # 'Data/final_metric_files/ice.csv'

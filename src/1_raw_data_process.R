@@ -10,6 +10,9 @@ source("src/1_raw_data_process/01_physics.R")
 source("src/1_raw_data_process/02_nutrients.R")
 source("src/1_raw_data_process/02_secchi.R")
 source("src/1_raw_data_process/02_zoopDensity.R")
+# source functions
+source("src/Functions/weibullYear.R")
+
 
 p1_targets_list <- list(
   tar_target(

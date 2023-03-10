@@ -19,11 +19,11 @@ zoopDensity <- function(path_out) {
     dplyr::select(lakeid, year4 = year, lastice = sampledate)
   
   #Combine files
-  dt = dt1 |> dplyr::select(-towdepth) |> 
+  zoops = dt1 |> dplyr::select(-towdepth) |> 
     bind_rows(dt2) |> 
     left_join(ice0) |> 
     filter(sample_date > lastice) |> 
-    mutate(code = floor(species_code/10000)) |>
+    mutate(code = floor(species_code/10000), daynum = yday(sample_date)) |>
     mutate(zoopGroup = case_when(code == 1 ~ 'copepod nauplii',
                                  code == 2 ~ 'copepod',
                                  code == 3 ~ 'calanoid',
@@ -32,50 +32,53 @@ zoopDensity <- function(path_out) {
                                  code == 6 ~ 'rotifer',
                                  code == 7 ~ 'unknown',
                                  code == 8 ~ 'unknown',
-                                 code == 9 ~ 'unknown'))
+                                 code == 9 ~ 'unknown')) |> 
+    filter(code %in% c(2,3,4,5)) |>  # cladocera and copepods
+    rename(year = year4, sampledate = sample_date)
+    
+    
+  ####### Zoop function to output day of year and weibull #################
+  makeZoop <- function(df, usemetric, max = TRUE, spring = FALSE, usecutoff = 8) {
+    
+    if(spring == TRUE) {
+      df = df |> filter(daynum < 182)
+    }
+    
+    df = df |> group_by(lakeid, year, sampledate, daynum) |> 
+      summarize(density = sum(density, na.rm = T)) |> 
+      group_by(lakeid, year)
+    
+    if (max == TRUE) {
+      dayMax = df |>  slice_max(density, with_ties = FALSE, n = 1) # if ties, select the first 
+      weibullMax = df |> 
+        group_modify(~weibull.year(.x, 'density', find = 'max', datacutoff = usecutoff), .keep = TRUE)
+    } else {
+      dayMax = df |>  slice_min(density, with_ties = FALSE, n = 1) # if ties, select the first 
+      weibullMax = df |> 
+        group_modify(~weibull.year(.x, 'density', find = 'min', datacutoff = usecutoff), .keep = TRUE)
+    }
+    
+    output = dayMax |> left_join(weibullMax) |> 
+      mutate(metric = usemetric) |> 
+      select(lakeid, metric, sampledate, year, daynum, dayWeibull, weibull.r2)
+    return(output)
+  }
   
-  # Zooplankton ID codes
-  codes = dt |> 
-    group_by(species_code) |> 
-    summarise(first(species_name))
-  
-  # by zoop group
-  # cladocera and copepods
-  zoopDensity.cc = dt |> filter(code %in% c(1,2,3,4,5)) |> 
-    group_by(lakeid, year4, sample_date) |> 
-    summarize(density = sum(density, na.rm = T)) |> 
-    group_by(lakeid, year4) |> 
-    slice_max(density) |> 
-    mutate(metric = 'zoopDensity', daynum = yday(sample_date))
-  # 
-  # # all zoops
-  # zoopDensity = dt |> 
-  #   group_by(lakeid, year4, sample_date) |> 
-  #   summarize(density = sum(density, na.rm = T)) |> 
-  #   group_by(lakeid, year4) |> 
-  #   slice_max(density) |> 
-  #   mutate(metric = 'zoopDensity', daynum = yday(sample_date))
-  
-  # spring only
-  zoopDensity.cc.spring = dt |> filter(code %in% c(1,2,3,4,5)) |> 
-    filter(yday(sample_date) < 200) |>
-    group_by(lakeid, year4, sample_date) |> 
-    summarize(density = sum(density, na.rm = T)) |> 
-    group_by(lakeid, year4) |> 
-    slice_max(density, with_ties = FALSE, n = 1) |> 
-    mutate(metric = 'zoopDensity_spring', daynum = yday(sample_date))
+  # Get doys
+  o1 = makeZoop(zoops, 'zoop_max', max = TRUE, spring = FALSE) # zoop max
+  o2 = makeZoop(zoops, 'zoop_springmax', max = TRUE, spring = TRUE, usecutoff = 5) # zoop max spring
   
   # Combine datasets 
-  zoop.out = zoopDensity.cc |> bind_rows(zoopDensity.cc.spring) |> 
-    dplyr::select(lakeid, metric, sampledate = sample_date, year = year4, daynum)
+  zoop.out =  bind_rows(o1, o2) |> 
+    select(lakeid, metric, sampledate, year, daynum, dayWeibull, weibull.r2)
   
   # Check for duplicates
   zoop.out |> group_by(lakeid, metric, year) |> filter(n() > 1)
   
-  # Plot check
-  ggplot(zoop.out) + 
-    geom_density(aes(x = daynum, color = metric)) +
-    facet_wrap(~lakeid, scales = 'free_y')
+  # # Plot check
+  # ggplot(zoop.out) + 
+  #   geom_density(aes(x = daynum, color = metric)) +
+  #   facet_wrap(~lakeid, scales = 'free_y')
   
   write_csv(zoop.out, path_out)
   

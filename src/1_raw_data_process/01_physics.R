@@ -61,6 +61,7 @@ physics <- function(path_in, path_out, path_out_derived) {
   
   dt1 = fullDatesDepths |> left_join(dt0)
   
+  # Interpolate temperature with depth
   data.temp <- dt1 %>%
     mutate(wtemp = if_else(flagwtemp == 'K' & !is.na(flagwtemp), NA_real_, wtemp)) |> 
     group_by(lakeid, sampledate) %>%
@@ -71,6 +72,7 @@ physics <- function(path_in, path_out, path_out_derived) {
     mutate(wdens = get_dens(iwtemp, 0)) %>%
     select(lakeid, year = year4, sampledate, depth, iwtemp, wtemp, wdens)
   
+  # Interpolate oxygen with depth
   data.o2 <- dt1 %>%
     mutate(o2 = if_else(flago2 == 'K' & !is.na(flago2), NA_real_, o2)) |> 
     group_by(lakeid, sampledate) %>%
@@ -104,7 +106,7 @@ physics <- function(path_in, path_out, path_out_derived) {
     }
     
     
-    #Get hyposometry for lake 
+    #Get hypsometry for lake 
     hyp <- bath %>%
       filter(lakeid == name)
     if (max(data.temp.lake$depth) > max(hyp$Depth_m)){
@@ -112,6 +114,7 @@ physics <- function(path_in, path_out, path_out_derived) {
       hyp$Depth_m[nrow(hyp)] <- max(data.temp.lake$depth)
     }
     
+    # Calculate thermocline depth, density  differnce, and surface temp
     df.lake <- data.temp.lake %>%
       group_by(year, sampledate) %>%
       distinct(depth, .keep_all = TRUE) %>%
@@ -122,13 +125,14 @@ physics <- function(path_in, path_out, path_out_derived) {
                 densdiff = wdens[which.max(depth)] - wdens[which.min(depth)],
                 surfwtemp = iwtemp[which.min(depth)]) 
     
-    # for winter?
-    df.lake = df.lake %>% mutate(densdiff = ifelse(densdiff > 0.1 & surfwtemp >= 4, densdiff, NA)) %>% 
-      mutate(thermdep = ifelse(is.na(thermdep), NA, thermdep))
+    # Exclude temperatures < 4
+    df.lake = df.lake %>% 
+      mutate(densdiff = ifelse(densdiff > 0.1 & surfwtemp >= 4, densdiff, 0)) %>% 
+      mutate(thermdep = ifelse(densdiff > 0.1 & surfwtemp >= 4, thermdep, 0)) %>% 
+      mutate(thermdep = ifelse(is.na(thermdep), 0, thermdep))
     
     # export thermocline depth
     therm.list[[name]] = data.frame(lakeid = name, sampledate = df.lake$sampledate, thermdepth_m = df.lake$thermdep)
-    
     
     dz = 0.5
     
@@ -145,8 +149,6 @@ physics <- function(path_in, path_out, path_out_derived) {
       summarise('energy' = sum(energy, na.rm = T)/max(area, na.rm = T),
                 'n2max' = max(n2))
     
-    df.lake <- df.lake[complete.cases(df.lake),]
-    
     # Get oxygen
     an <- data.o2.lake %>%
       group_by(year, sampledate) %>%
@@ -157,24 +159,74 @@ physics <- function(path_in, path_out, path_out_derived) {
       summarise('do' = sum(dz * area * do))
     
     # Final stratification data.frame
-    strat.df =  df.lake %>% group_by(year) %>%  
-      summarise(lakeid = name, 
-                straton = min(sampledate, na.rm = T), 
-                stratoff = max(sampledate, na.rm = T), 
-                duration = as.numeric(max(sampledate, na.rm = T) - min(sampledate, na.rm = T)))
-                
-    en.df = en %>% group_by(year) %>% 
-      summarise(energy = sampledate[which.max(energy)],
-                stability = sampledate[which.max(n2max)])
-            
+    # df.lake <- df.lake[complete.cases(df.lake),]
+    
+    # stratification
+    straton.df =  df.lake %>% group_by(year) %>%  
+      filter(thermdep > 0) |> 
+      slice_min(sampledate, with_ties = FALSE, n = 1) |>  # if ties, select the first
+      mutate(daynum = yday(sampledate)) |> 
+      left_join(
+        df.lake |> mutate(daynum = yday(sampledate)) |> 
+          mutate(thermdep = if_else(thermdep == 0, max(hyp$Depth_m), thermdep)) |> 
+          group_modify(~weibull.year(.x, 'thermdep', find = 'min', datacutoff = 8), .keep = TRUE)
+      ) |> 
+      mutate(metric = 'straton')  |> 
+      select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)
+    
+    stratoff.df =  df.lake %>% group_by(year) %>%  
+      filter(thermdep > 0) |> 
+      slice_max(sampledate, with_ties = FALSE, n = 1) |>  # if ties, select the first
+      mutate(daynum = yday(sampledate)) |> 
+      left_join(
+        df.lake |> mutate(daynum = yday(sampledate)) |> 
+          group_modify(~weibull.year(.x, 'thermdep', find = 'max', datacutoff = 8), .keep = TRUE)
+      ) |> 
+      mutate(metric = 'stratoff')  |> 
+      select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)
+      
+    # energy output
+    en.df = en %>% 
+      group_by(year) %>% 
+      slice_max(energy, with_ties = FALSE, n = 1) |>  # if ties, select the first
+      mutate(daynum = yday(sampledate)) |> 
+      left_join(
+        en |> mutate(daynum = yday(sampledate)) |> 
+        group_modify(~weibull.year(.x, 'energy', find = 'max', datacutoff = 8), .keep = TRUE)
+      ) |> 
+      mutate(metric = 'energy')  |> 
+      select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)
+    
+    # stability
+    stability.df = en %>% 
+      group_by(year) %>% 
+      slice_max(n2max, with_ties = FALSE, n = 1) |>  # if ties, select the first
+      mutate(daynum = yday(sampledate)) |> 
+      left_join(
+        en |> mutate(daynum = yday(sampledate)) |> 
+          group_modify(~weibull.year(.x, 'n2max', find = 'max', datacutoff = 8), .keep = TRUE)
+      ) |> 
+      mutate(metric = 'stability')  |> 
+      select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)
+    
     # Get minimum anoxia after stratification 
-    anoxia.df = an %>% ungroup() %>% left_join(strat.df %>% select(year, straton, stratoff)) %>% 
+    anoxia.df = an %>% ungroup() %>% 
+      left_join(strat.df %>% select(year, straton, stratoff)) %>% 
       group_by(year) %>% 
       filter(sampledate >= straton & sampledate <= stratoff) %>%
-      summarise(minimum_oxygen =  sampledate[which.min(do)])
+      slice_min(do, with_ties = FALSE, n = 1) |>  # if ties, select the first
+      mutate(daynum = yday(sampledate)) |> 
+      left_join(
+        an |> mutate(daynum = yday(sampledate)) |> 
+          group_modify(~weibull.year(.x, 'do', find = 'min', datacutoff = 5), .keep = TRUE)
+      ) |> 
+      mutate(metric = 'minimum_oxygen')  |> 
+      select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)
+      
     
     # Join anoxia to strat dataframe
-    strat.list[[name]] = strat.df %>% left_join(en.df) %>% left_join(anoxia.df)     
+    strat.list[[name]] = bind_rows(straton.df, stratoff.df, en.df, stability.df, anoxia.df) |> 
+      mutate(lakeid = name) |> select(lakeid, everything())
   }
   
   # Export thermocline depths

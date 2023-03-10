@@ -1,10 +1,10 @@
 
 nutrients <- function(ice_file, path_out) {
-  # Updated 2023-01-11
-  varsWant = c("doc_epiMax", "totpuf_epiMin", #"totpuf_epiMax", 
-               "totpuf_hypoMax", #"totpuf_hypoMin", 
-               "drsif_epiMin", "drsif_epiSpringMin",
-               "totnuf_epiMin", "totnuf_hypoMax")
+  # Updated 2023-03-10 Hilary Dugan
+  varsWant = c("doc_surfMax", "totpuf_surfMin", #"totpuf_surfMax", 
+               "totpuf_botMax", #"totpuf_botMin", 
+               "drsif_surfMin", "drsif_surfSpringMin",
+               "totnuf_surfMin", "totnuf_botMax")
   
   #################### FUNCTIONS ####################
   # filtering function - turns outliers into NAs to be removed
@@ -26,7 +26,7 @@ nutrients <- function(ice_file, path_out) {
   infile1 <- tempfile()
   download.file(inUrl1, infile1, method = "curl")
   
-  # There is an offset between state lab of hygeiene (SLOH) drsif and NLT drsif. 
+  # There is an offset between state lab of hygiene (SLOH) drsif and NLT drsif. 
   # A linear model of sloh ~ ntl has a slope of 2.28 with r2 of 0.94. 
   LTERnutrients <- read_csv(infile1) |> 
     mutate(drsif = 2.28 * drsif)
@@ -86,62 +86,51 @@ nutrients <- function(ice_file, path_out) {
     filter(n() >= 8)
   
   #################### MANIPULATE DATA ####################
-  
-  # restrict to epi/hypo and stratification period
+  # restrict to surf/bot and stratification period and choose variables of interest
   nuts = surfNuts %>% bind_rows(botNuts) |> 
     left_join(ice0) |> 
-    filter(sampledate > lastice)
+    filter(sampledate > lastice) |> 
+    rename(year = year4) |> 
+    filter(item %in% c('drsif', 'no3no2', 'ph', 'doc', 'totnf', 'totnuf', 'topf', 'totpuf', 'drp'))
+    
+  ####### Nutrient function to output day of year and weibull #################
+  makeNuts <- function(df, uselayer, usemetric, max = TRUE, spring = FALSE, usecutoff = 8) {
+    
+    df = df |> filter(layer == uselayer)
+    
+    if(spring == TRUE) {
+      df = df |> filter(yday(sampledate) < 182)
+    }
+    
+    df = df |> group_by(lakeid, year, item)
+    
+    if (max == TRUE) {
+      dayMax = df |>  slice_max(value, with_ties = FALSE, n = 1) # if ties, select the first 
+      weibullMax = df |> 
+        group_modify(~weibull.year(.x, 'value', find = 'max', datacutoff = usecutoff), .keep = TRUE)
+    } else {
+      dayMax = df |>  slice_min(value, with_ties = FALSE, n = 1) # if ties, select the first 
+      weibullMax = df |> 
+        group_modify(~weibull.year(.x, 'value', find = 'min', datacutoff = usecutoff), .keep = TRUE)
+    }
+    
+    output = dayMax |> left_join(weibullMax) |> 
+      ungroup() |> 
+      mutate(metric = paste0(item, '_', usemetric)) |> 
+      select(lakeid, metric, sampledate, year, daynum, dayWeibull, weibull.r2)
+    return(output)
+  }
   
-  # find day min or max values
-  epi_min = nuts %>% 
-    filter(layer == 'surf') |> 
-    group_by(lakeid, year4, item) %>% 
-    slice_min(value, with_ties = FALSE, n = 1) %>% # if ties, select the first 
-    mutate(daynum = yday(sampledate), metric = paste0(item, "_epiMin")) %>% 
-    ungroup() %>% 
-    dplyr::select(lakeid, metric, sampledate, year4, daynum)
-  
-  epi_max = nuts %>% 
-    filter(layer == 'surf') |> 
-    group_by(lakeid, year4, item) %>% 
-    slice_max(value, with_ties = FALSE, n = 1) %>% # if ties, select the first 
-    mutate(daynum = yday(sampledate), metric = paste0(item, "_epiMax")) %>% 
-    ungroup() %>% 
-    dplyr::select(lakeid, metric, sampledate, year4, daynum)
-  
-  hypo_min = nuts %>% 
-    filter(layer == 'bot') |> 
-    group_by(lakeid, year4, item) %>% 
-    slice_min(value, with_ties = FALSE, n = 1) %>% # if ties, select the first 
-    mutate(daynum = yday(sampledate), metric = paste0(item, "_hypoMin")) %>% 
-    ungroup() %>% 
-    dplyr::select(lakeid, metric, sampledate, year4, daynum)
-  
-  hypo_max = nuts %>% 
-    filter(layer == 'bot') |> 
-    group_by(lakeid, year4, item) %>% 
-    slice_max(value, with_ties = FALSE, n = 1) %>% # if ties, select the first 
-    mutate(daynum = yday(sampledate), metric = paste0(item, "_hypoMax")) %>% 
-    ungroup() %>% 
-    dplyr::select(lakeid, metric, sampledate, year4, daynum)
-  
-  epi_springmin = nuts %>% 
-    filter(layer == 'surf') |> 
-    filter(yday(sampledate) < 200) |> 
-    group_by(lakeid, year4, item) %>% 
-    slice_min(value, with_ties = FALSE, n = 1) %>% # if ties, select the first 
-    mutate(daynum = yday(sampledate), metric = paste0(item, "_epiSpringMin")) %>% 
-    ungroup() %>% 
-    dplyr::select(lakeid, metric, sampledate, year4, daynum)
+  o1 = makeNuts(nuts, uselayer = 'surf', usemetric = 'surfMax', max = TRUE, spring = FALSE) # secchi max
+  o2 = makeNuts(nuts, uselayer = 'bot', usemetric = 'botMax', max = TRUE, spring = FALSE) # secchi max
+  o3 = makeNuts(nuts, uselayer = 'surf', usemetric = 'surfMin', max = FALSE, spring = FALSE) # secchi max
+  o4 = makeNuts(nuts, uselayer = 'bot', usemetric = 'botMin', max = FALSE, spring = FALSE) # secchi max
+  o5 = makeNuts(nuts, uselayer = 'surf', usemetric = 'springSurfMin', max = FALSE, spring = TRUE, usecutoff = 5) # secchi max
   
   
-  comb = bind_rows(epi_min, epi_max, hypo_min, hypo_max, epi_springmin) |> 
-    rename(year = year4)
-  
-  # Plot density distributions
-  # ggplot(comb) +
-  #   geom_density(aes(x = daynum)) +
-  #   facet_grid(rows=vars(lakeid), cols=vars(metric))
+  ####### Join datasets ###### ###### ###### ###### ###### ######
+  comb = bind_rows(o1, o2, o3, o4, o5) |> 
+    select(lakeid, metric, sampledate, year, daynum, dayWeibull, weibull.r2) # set order 
   
   write_csv(comb %>% filter(metric %in% varsWant), file = path_out)
   
