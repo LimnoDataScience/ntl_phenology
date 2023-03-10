@@ -1,6 +1,6 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
 combine_final_files|function|fce182cfc88ef346|||||||||||||||
-combine_final_files_csv|stem|681476d661247b4e|36b4d6a0c33e426e|52160f90ee8a8120|885137793|Data/final_metric_files/final_combined_dates.csv|t19426.7171344573s|699c0d611c6ef617|286263|file|local|vector|||0.33||
+combine_final_files_csv|stem|d26bb55c1473b539|36b4d6a0c33e426e|ce95705e415ba9b9|885137793|Data/final_metric_files/final_combined_dates.csv|t19426.7898936197s|d98e3db1add2e74b|386827|file|local|vector|||0.4||
 figure1|function|0c96ede52d848063|||||||||||||||
 figure1_png|stem|a0e0ad62ecdc391c|008b9633fe02efde|4b68b96374bd550b|-1243988014||t19363.9448035592s|8619def19bb20a44|79|rds|local|vector|||5.628|no nonmissing arguments to min returning Inf. no nonmissing arguments to max returning Inf. 1m22mRemoved 234 rows containing nonfinite values stat_density_ridges.. no nonmissing arguments to max returning Inf. 1m22mUsing the size aesthietic with geom_segment was deprecated in ggplot2 3.4.0.36mℹ39m Please use the linewidth aesthetic instead.|
 figure1_v2|function|02efe837ad23bd23|||||||||||||||
@@ -17,15 +17,15 @@ ice_csv|stem|db268923d4ef5f89|fb46d4d4a759d012|db84f41d3c23a237|469259864|Data/f
 ice_days|stem|34889b8665d21d80|fb46d4d4a759d012|a37ac3a0ea8a8720|-2133189578|Data/final_metric_files/ice.csv|t19363.6887946466s|84716486ab29f982|23053|file|local|vector|||3.206||
 icedates|function|faa2d887d03f3040|||||||||||||||
 missing_dates_fill|function|13a5869e94f886fc|||||||||||||||
-missing_dates_fill_csv|stem|236e399e819ec8ff|d8c40976305e7806|02df1922d0eb37c2|-2068274627|Data/analysis_ready/final_combined_dates_filled_v2.csv|t19417.6521140024s||297523|file|local|vector|||0.266||object doc_epiMax not found
+missing_dates_fill_csv|stem|236e399e819ec8ff|d8c40976305e7806|34c94b0d01deb9a3|-2068274627|Data/analysis_ready/final_combined_dates_filled_v2.csv|t19417.6521140024s||297523|file|local|vector|||0.287||object doc_epiMax not found
 nutrients|function|dadb642b4131e898|||||||||||||||
 nutrients_csv|stem|11b790a3f172d55a|a9155ed9c92c5464|9818588d1a22dbd1|-1176877555|Data/final_metric_files/nutrients.csv|t19426.715854372s|491e7407663683f2|95101|file|local|vector|||831.737||
 p1_targets_list|object|fa6807633c557806|||||||||||||||
 p2_targets_list|object|42d32afa233d968a|||||||||||||||
 p3_targets_list|object|fdb4bf3af4432efb|||||||||||||||
 packages|object|664955cbe60fed0c|||||||||||||||
-physics|function|92f729fea08b4f05|||||||||||||||
-physics_csv|stem|8dae0c92d52a1a9b|1400b2b74adee83d|11d29f3f886bdd8d|973165131|Data/final_metric_files/physics.csv|t19391.6873111081s|cc5327d343f445df|62189|file|local|vector|||22.48|1m22mOne or more parsing issues, call problems on your data frame for details,e.g.  dat  vroom...  problemsdat|
+physics|function|1fce9cfd434f45cb|||||||||||||||
+physics_csv|stem|a322aca36708cb6e|1400b2b74adee83d|5cfda979643cb86f|973165131|Data/final_metric_files/physics.csv|t19426.7898887335s|dc5abf4886881c5c|174553|file|local|vector|||359.533|1m22mOne or more parsing issues, call problems on your data frame for details,e.g.  dat  vroom...  problemsdat. collapsing to unique x values. collapsing to unique x values. collapsing to unique x values|
 physics_days|stem|7b4c13c1d07a1ed7|1400b2b74adee83d|4fc298e7e732983a|-1704211764|Data/final_metric_files/physics.csv|t19363.698205717s|5968a25f5554b9e9|61810|file|local|vector|||11.136|1m22mOne or more parsing issues, call problems on your data frame for details,e.g.  dat  vroom...  problemsdat|
 secchi|function|f262288ff991b547|||||||||||||||
 secchi_csv|stem|f73328dbf127487e|6535bf0199b45a4e|48978094fdfdca46|1053825497|Data/final_metric_files/secchi.csv|t19426.7171304945s|14016ae3c8ba4d8d|61502|file|local|vector|||110.252||
