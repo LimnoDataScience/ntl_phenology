@@ -210,20 +210,22 @@ physics <- function(path_in, path_out, path_out_derived) {
       select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)
     
     # Get minimum anoxia after stratification 
-    anoxia.df = an %>% ungroup() %>% 
-      left_join(strat.df %>% select(year, straton, stratoff)) %>% 
+    anoxia.summer = an %>% ungroup() %>% 
+      left_join(straton.df |> select(year, straton = sampledate)) |> 
+      left_join(stratoff.df |> select(year, stratoff = sampledate)) |> 
       group_by(year) %>% 
-      filter(sampledate >= straton & sampledate <= stratoff) %>%
+      filter(sampledate >= straton & sampledate <= stratoff)
+      
+    anoxia.df = anoxia.summer |> 
       slice_min(do, with_ties = FALSE, n = 1) |>  # if ties, select the first
       mutate(daynum = yday(sampledate)) |> 
       left_join(
-        an |> mutate(daynum = yday(sampledate)) |> 
+        anoxia.summer |> mutate(daynum = yday(sampledate)) |> 
           group_modify(~weibull.year(.x, 'do', find = 'min', datacutoff = 5), .keep = TRUE)
       ) |> 
       mutate(metric = 'minimum_oxygen')  |> 
       select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)
       
-    
     # Join anoxia to strat dataframe
     strat.list[[name]] = bind_rows(straton.df, stratoff.df, en.df, stability.df, anoxia.df) |> 
       mutate(lakeid = name) |> select(lakeid, everything())
