@@ -235,10 +235,7 @@ physics <- function(path_in, path_out, path_out_derived) {
   
   # Export physics metrics
   strat.df = do.call(rbind.data.frame, strat.list)
-  strat.df.wide = strat.df %>% select(-duration) %>% 
-    pivot_longer(cols = straton:minimum_oxygen, names_to = "metric", values_to = "sampledate") %>% 
-    mutate(daynum = yday(sampledate)) 
-  write_csv(strat.df.wide, file = path_out)
+  write_csv(strat.df, file = path_out)
   
   # Plot comparison with old data file
   # test = read_csv('Data/old/phenology_dates_v1.csv') %>% 
