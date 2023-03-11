@@ -1,3 +1,4 @@
+# https://link.springer.com/article/10.1007/s00442-007-0783-2
 
 physics <- function(path_in, path_out, path_out_derived) {
   # Load NTL LTER long term physical lake data
@@ -58,7 +59,6 @@ physics <- function(path_in, path_out, path_out_derived) {
     right_join(useYears)
   
   # Make original dataset fit to new grid
-  
   dt1 = fullDatesDepths |> left_join(dt0)
   
   # Interpolate temperature with depth
@@ -163,13 +163,12 @@ physics <- function(path_in, path_out, path_out_derived) {
     
     # stratification
     straton.df =  df.lake %>% group_by(year) %>%  
-      filter(thermdep > 0) |> 
+      filter(densdiff > 0) |> 
       slice_min(sampledate, with_ties = FALSE, n = 1) |>  # if ties, select the first
       mutate(daynum = yday(sampledate)) |> 
       left_join(
         df.lake |> mutate(daynum = yday(sampledate)) |> 
-          mutate(thermdep = if_else(thermdep == 0, max(hyp$Depth_m), thermdep)) |> 
-          group_modify(~weibull.year(.x, 'thermdep', find = 'min', datacutoff = 8), .keep = TRUE)
+          group_modify(~weibull.year(.x, 'densdiff', find = 'max', cardinal = 'begin', datacutoff = 8), .keep = TRUE)
       ) |> 
       mutate(metric = 'straton')  |> 
       select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)
@@ -180,7 +179,7 @@ physics <- function(path_in, path_out, path_out_derived) {
       mutate(daynum = yday(sampledate)) |> 
       left_join(
         df.lake |> mutate(daynum = yday(sampledate)) |> 
-          group_modify(~weibull.year(.x, 'thermdep', find = 'max', datacutoff = 8), .keep = TRUE)
+          group_modify(~weibull.year(.x, 'densdiff', find = 'max', cardinal = 'end', datacutoff = 8), .keep = TRUE)
       ) |> 
       mutate(metric = 'stratoff')  |> 
       select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)

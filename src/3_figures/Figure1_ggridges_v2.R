@@ -35,7 +35,7 @@ figure1_v2 <- function(path_in, path_out) {
       ggplot() + 
       stat_density_ridges(aes(x = as.Date(daynum, origin = as.Date('2019-01-01')), 
                               y= metric, col = metric, fill = metric), 
-                          alpha = 0.5, quantile_lines = T, quantiles = 2, size = 0.3) +
+                          alpha = 0.5, quantile_lines = T, quantiles = 2, linewidth = 0.3) +
       # scale_fill_manual(values=met.brewer("Archambault", length(vars_order))) + 
       # scale_color_manual(values=met.brewer("Archambault", length(vars_order))) +
       scale_fill_manual(values = rev(c(rep('#e3d35d',6), rep('#97bab7',5), rep('#bf7058',4)))) +

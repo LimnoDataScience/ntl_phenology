@@ -1,14 +1,14 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
-combine_final_files|function|fce182cfc88ef346|||||||||||||||
-combine_final_files_csv|stem|d26bb55c1473b539|36b4d6a0c33e426e|ce95705e415ba9b9|885137793|Data/final_metric_files/final_combined_dates.csv|t19426.7898936197s|d98e3db1add2e74b|386827|file|local|vector|||0.4||
+combine_final_files|function|ed6564285d447a2a|||||||||||||||
+combine_final_files_csv|stem|3b80a601fd9cff36|7ae3aaa8b4293d38|c718bceab5e8745a|885137793|Data/final_metric_files/final_combined.csv|t19427.7141483216s|912ffb44254ed001|375622|file|local|vector|||0.28||
 figure1|function|0c96ede52d848063|||||||||||||||
 figure1_png|stem|a0e0ad62ecdc391c|008b9633fe02efde|4b68b96374bd550b|-1243988014||t19363.9448035592s|8619def19bb20a44|79|rds|local|vector|||5.628|no nonmissing arguments to min returning Inf. no nonmissing arguments to max returning Inf. 1m22mRemoved 234 rows containing nonfinite values stat_density_ridges.. no nonmissing arguments to max returning Inf. 1m22mUsing the size aesthietic with geom_segment was deprecated in ggplot2 3.4.0.36mℹ39m Please use the linewidth aesthetic instead.|
-figure1_v2|function|02efe837ad23bd23|||||||||||||||
+figure1_v2|function|3a14de70fbcdde9e|||||||||||||||
 figure1_v2_png|stem|8de1c5408b366e8e|47d866b26632cf31|078fbdfad43584a3|-501755400||t19417.6524497385s|0b52c5847220add9|82|rds|local|vector|||6.815|1m22mRemoved 87 rows containing nonfinite values stat_density_ridges.. 1m22mUsing the size aesthietic with geom_segment was deprecated in ggplot2 3.4.0.36mℹ39m Please use the linewidth aesthetic instead.. 1m22mRemoved 61 rows containing nonfinite values stat_density_ridges.. 1m22mRemoved 51 rows containing nonfinite values stat_density_ridges.. 1m22mRemoved 93 rows containing nonfinite values stat_density_ridges.. 1m22mRemoved 43 rows containing nonfinite values stat_density_ridges.. 1m22mRemoved 4 rows containing missing values geom_point.. 1m22mRemoved 2 rows containing missing values geom_point.. 1m22mRemoved 2 rows containing missing values geom_point.. 1m22mRemoved 2 rows containing missing values geom_point.|
 figure2|function|9d7b266c41c9fe2d|||||||||||||||
 figure2_png|stem|ecfb1f1c2c33b584|76d61fe39b8ea5e8|d662ce975573ec57|590527149||t19417.6523698874s|e961a0bcff3caad6|91|rds|local|vector|||2.499|1m22mRemoved 39 rows containing missing values geom_point.|
 figure3|function|008f9562f0fa8d4f|||||||||||||||
-figure3_png|stem|c3f32348153441a6|c8c02e1a7a37d016|5580ef4f26d0fe58|2088233791||t19417.6523409128s|a3c4b57a6f0085ec|90|rds|local|vector|||6.571|1m22mThe size argument of element_line is deprecated as of ggplot2 3.4.0.36mℹ39m Please use the linewidth argument instead.. 1m22mUsing size aesthetic for lines was deprecated in ggplot2 3.4.0.36mℹ39m Please use linewidth instead.. 1m22mRemoved 64 rows containing nonfinite values stat_boxplot.. 1m22mRemoved 51 rows containing nonfinite values stat_boxplot.. 1m22mRemoved 94 rows containing nonfinite values stat_boxplot.. 1m22mRemoved 61 rows containing nonfinite values stat_boxplot.. 1m22mRemoved 85 rows containing nonfinite values stat_boxplot.. 1m22mRemoved 65 rows containing nonfinite values stat_boxplot.. 1m22mRemoved 84 rows containing nonfinite values stat_boxplot.. 1m22mRemoved 64 rows containing nonfinite values stat_boxplot.. 1m22mRemoved 88 rows containing nonfinite values stat_boxplot.|
+figure3_png|stem|c3f32348153441a6|c8c02e1a7a37d016|b4ff31aebb97c6dd|2088233791||t19417.6523409128s||90|rds|local|vector|||0.215||object missing_dates_fill_csv not found
 figureSI_MK|function|4864799a14a3d4eb|||||||||||||||
 figureSI_MK_png|stem|dfed5590c9e66f0a|1ed43c03658d9f84|dd8b93f8b0696980|1652080527||t19417.6522647587s|a95c412dc5b0b699|125794|rds|local|vector|||12.5||
 figureSI_withinLake|function|b4ffd5525c92c319|||||||||||||||
@@ -17,23 +17,23 @@ ice_csv|stem|db268923d4ef5f89|fb46d4d4a759d012|db84f41d3c23a237|469259864|Data/f
 ice_days|stem|34889b8665d21d80|fb46d4d4a759d012|a37ac3a0ea8a8720|-2133189578|Data/final_metric_files/ice.csv|t19363.6887946466s|84716486ab29f982|23053|file|local|vector|||3.206||
 icedates|function|faa2d887d03f3040|||||||||||||||
 missing_dates_fill|function|13a5869e94f886fc|||||||||||||||
-missing_dates_fill_csv|stem|236e399e819ec8ff|d8c40976305e7806|34c94b0d01deb9a3|-2068274627|Data/analysis_ready/final_combined_dates_filled_v2.csv|t19417.6521140024s||297523|file|local|vector|||0.287||object doc_epiMax not found
-nutrients|function|dadb642b4131e898|||||||||||||||
-nutrients_csv|stem|11b790a3f172d55a|a9155ed9c92c5464|9818588d1a22dbd1|-1176877555|Data/final_metric_files/nutrients.csv|t19426.715854372s|491e7407663683f2|95101|file|local|vector|||831.737||
+missing_dates_fill_csv|stem|236e399e819ec8ff|d8c40976305e7806|57548c5ed855bc48|-2068274627|Data/analysis_ready/final_combined_dates_filled_v2.csv|t19417.6521140024s||297523|file|local|vector|||0.244||object doc_epiMax not found
+nutrients|function|fe3db6b2f87e8665|||||||||||||||
+nutrients_csv|stem|ec7c67ceba44bd1b|a9155ed9c92c5464|cf0771ec3f73849c|-1176877555|Data/final_metric_files/nutrients.csv|t19427.7128869933s|483bc18e4a72b21a|647595|file|local|vector|||831.843||
 p1_targets_list|object|fa6807633c557806|||||||||||||||
-p2_targets_list|object|42d32afa233d968a|||||||||||||||
-p3_targets_list|object|fdb4bf3af4432efb|||||||||||||||
+p2_targets_list|object|4a3064d09609a387|||||||||||||||
+p3_targets_list|object|34ae513b42d18102|||||||||||||||
 packages|object|664955cbe60fed0c|||||||||||||||
-physics|function|1fce9cfd434f45cb|||||||||||||||
-physics_csv|stem|a322aca36708cb6e|1400b2b74adee83d|5cfda979643cb86f|973165131|Data/final_metric_files/physics.csv|t19426.7898887335s|dc5abf4886881c5c|174553|file|local|vector|||359.533|1m22mOne or more parsing issues, call problems on your data frame for details,e.g.  dat  vroom...  problemsdat. collapsing to unique x values. collapsing to unique x values. collapsing to unique x values|
+physics|function|401ac473de16ab86|||||||||||||||
+physics_csv|stem|1e0e1e749afc7b01|1400b2b74adee83d|018670b4b1997797|973165131|Data/final_metric_files/physics.csv|t19427.6814508544s|3141c3d685e14e06|131467|file|local|vector|||319.625|1m22mOne or more parsing issues, call problems on your data frame for details,e.g.  dat  vroom...  problemsdat|
 physics_days|stem|7b4c13c1d07a1ed7|1400b2b74adee83d|4fc298e7e732983a|-1704211764|Data/final_metric_files/physics.csv|t19363.698205717s|5968a25f5554b9e9|61810|file|local|vector|||11.136|1m22mOne or more parsing issues, call problems on your data frame for details,e.g.  dat  vroom...  problemsdat|
-secchi|function|f262288ff991b547|||||||||||||||
-secchi_csv|stem|f73328dbf127487e|6535bf0199b45a4e|48978094fdfdca46|1053825497|Data/final_metric_files/secchi.csv|t19426.7171304945s|14016ae3c8ba4d8d|61502|file|local|vector|||110.252||
+secchi|function|1e005fe06b73e59e|||||||||||||||
+secchi_csv|stem|85cf495d3502b3f6|6535bf0199b45a4e|24e37c921baa91f6|1053825497|Data/final_metric_files/secchi.csv|t19427.7141450143s|bd49bfe681c37fc5|72589|file|local|vector|||108.686||
 vars_label|stem|c1ed87b3d30a9fd6|a5e29de1cff94365|a3dad144c40657ed|-1723395617||t19366.8135546557s|274be9fab5df2fde|169|rds|local|vector|||0.017||
 vars_labels|stem|2897339bf92c654f|e8a76156ce53db8e|a3dad144c40657ed|1212328704||t19368.6812897728s|ec519ceac14e6e00|175|rds|local|vector|||0||
 vars_labels2|stem|70ef3ed29e6af209|350e494d3ae4d605|a3dad144c40657ed|-391815847||t19391.704737512s|2c02ccb1d6d3878b|191|rds|local|vector|||0.172||
-vars_order|stem|239e8488cd9fc1b9|6d831d301c7fed3f|a3dad144c40657ed|382671554||t19391.6874021294s|e102fd4cf0167a36|208|rds|local|vector|||0.018||
+vars_order|stem|6d04b6f48f32efc9|b6271f7457788699|a3dad144c40657ed|382671554||t19427.5919031795s|0cf7d46830a37596|201|rds|local|vector|||0.018||
 vars_order2|stem|5e2d5d4f39e96007|177424ed6ad809f0|a3dad144c40657ed|-1189857479||t19391.688991495s|3c187ffa31a31952|199|rds|local|vector|||0.001||
-weibull.year|function|51b228951073f233|||||||||||||||
-zoopDensity|function|fbb8a4420d286eb9|||||||||||||||
-zoopDensity_csv|stem|4af9e1d56f255ce0|9d108b893289ef03|3a5e390622ad7c05|-320082380|Data/final_metric_files/zoop_density.csv|t19426.6763341808s|77bb5bc738f202bb|32283|file|local|vector|||38.895||
+weibull.year|function|9814df3b36b92d31|||||||||||||||
+zoopDensity|function|964d0e818b190244|||||||||||||||
+zoopDensity_csv|stem|42d632c3111c1b95|9d108b893289ef03|1056e0ca2e0b94ab|-320082380|Data/final_metric_files/zoop_density.csv|t19427.6819078715s|cbc0f839970c855b|35889|file|local|vector|||39.48||
