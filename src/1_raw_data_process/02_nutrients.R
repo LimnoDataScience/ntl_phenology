@@ -1,10 +1,10 @@
 
 nutrients <- function(ice_file, path_out) {
   # Updated 2023-03-10 Hilary Dugan
-  varsWant = c("doc_surfMax", "totpuf_surfMin", #"totpuf_surfMax", 
-               "totpuf_botMax", #"totpuf_botMin", 
-               "drsif_surfMin", "drsif_surfSpringMin",
-               "totnuf_surfMin", "totnuf_botMax")
+  # varsWant = c("doc_surfMax", "totpuf_surfMin", #"totpuf_surfMax", 
+  #              "totpuf_botMax", #"totpuf_botMin", 
+  #              "drsif_surfMin", "drsif_surfSpringMin",
+  #              "totnuf_surfMin", "totnuf_botMax")
   
   #################### FUNCTIONS ####################
   # filtering function - turns outliers into NAs to be removed
@@ -132,7 +132,7 @@ nutrients <- function(ice_file, path_out) {
   comb = bind_rows(o1, o2, o3, o4, o5) |> 
     select(lakeid, metric, sampledate, year, daynum, dayWeibull, weibull.r2) # set order 
   
-  write_csv(comb %>% filter(metric %in% varsWant), file = path_out)
+  write_csv(comb, file = path_out)
   
   return(path_out) 
 }
