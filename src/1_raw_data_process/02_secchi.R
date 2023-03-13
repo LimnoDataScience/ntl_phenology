@@ -42,7 +42,7 @@ secchi <- function(ice_file, path_out) {
   ####### Secchi function to output day of year and weibull #################
   makeSecchi <- function(df, usemetric, max = TRUE, spring = FALSE, usecutoff = 8) {
     if(spring == TRUE) {
-      df = df |> filter(yday(sampledate) < 182)
+      df = df |> filter(yday(sampledate) <= 196)
     }
     
     df = df |> group_by(lakeid, year)

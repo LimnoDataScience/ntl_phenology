@@ -41,7 +41,7 @@ zoopDensity <- function(path_out) {
   makeZoop <- function(df, usemetric, max = TRUE, spring = FALSE, usecutoff = 8) {
     
     if(spring == TRUE) {
-      df = df |> filter(daynum < 182)
+      df = df |> filter(daynum <= 196)
     }
     
     df = df |> group_by(lakeid, year, sampledate, daynum) |> 

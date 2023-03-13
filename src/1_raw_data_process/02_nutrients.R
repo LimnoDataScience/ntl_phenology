@@ -99,7 +99,7 @@ nutrients <- function(ice_file, path_out) {
     df = df |> filter(layer == uselayer)
     
     if(spring == TRUE) {
-      df = df |> filter(yday(sampledate) < 182)
+      df = df |> filter(yday(sampledate) <= 196)
     }
     
     df = df |> group_by(lakeid, year, item)
