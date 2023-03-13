@@ -15,6 +15,7 @@ source("src/3_figures/Figure2_PEGmodel.R")
 source("src/3_figures/Figure3_betweenLake.R")
 source("src/3_figures/FigureSI_WithinLake.R")
 source("src/3_figures/FigureSI_MK.R")
+source("src/3_figures/FigureSI_tile.R")
 
 p3_targets_list <- list(
   # tar_target(
@@ -36,17 +37,22 @@ p3_targets_list <- list(
     figure1_v2(path_in = combine_final_files_csv,
             path_out = "Figures_manuscript/Figure1_v2.pdf")
   ),
-  tar_target(
-    name = figure2_png,
-    figure2(path_in = combine_final_files_csv,
-            path_out = "Figures_manuscript/Figure2.pdf",
-            path_out2 = "Figures_manuscript/FigureSI_histograms.png")
-  ),
+  # tar_target(
+  #   name = figure2_png,
+  #   figure2(path_in = combine_final_files_csv,
+  #           path_out = "Figures_manuscript/Figure2.pdf",
+  #           path_out2 = "Figures_manuscript/FigureSI_histograms.png")
+  # ),
   tar_target(
     name = figure3_png,
     figure3(path_in = combine_final_files_csv,
             path_out = "Figures_manuscript/Figure3.png",
             path_out2 = 'Figures_manuscript/FigureSI_lakePairs.png')
+  ),
+  tar_target(
+    name = figureSI_tile_png,
+    figureSI_tile(path_in = combine_final_files_csv,
+                path_out = "Figures_manuscript/FigureSI_tile.png")
   ),
   tar_target(
     name = figureSI_withinLake_png,

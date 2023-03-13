@@ -9,14 +9,12 @@ figure3 <- function(path_in, path_out, path_out2) {
   lakes_order = c("AL", "BM", "CB", "CR", "SP", "TB", "TR", "ME", "MO", "WI")
   
   vars_order = c("iceoff", "straton", "stability", "energy","stratoff", "iceon",
-                 "drsif_epiSpringMin", "drsif_epiMin",  "totnuf_epiMin", "totpuf_epiMin", 
-    "totnuf_hypoMax","totpuf_hypoMax", 
-    "minimum_oxygen", "secchi_springmax", "secchi_max", "secchi_min", "zoopDensity_spring", "zoopDensity")
+                 "drsif_surfMin", "nh4_surfMin", "no3no2_surfMin", 'totpuf_surfMin', 'doc_surfMax',
+                 "minimum_oxygen", "secchi_max", "secchi_springmax", "zoop_max")
 
   vars_labels = c("Ice off", "Strat onset", "Stability", "Energy", 'Strat offset','Ice on',
-                  'Si spring min', 'Si epi min', 'TN epi min', 'TP epi min', 
-                  'TN hypo max', 'TP hypo max',
-                  'Oxygen min', 'Secchi spring max', 'Secchi max', 'Secchi min','Zoop spring max', 'Zoop max')
+                  'Si surf min', 'NH4 surf min', 'NO3 surf min', 'TP surf min', 'DOC surf max',
+                  'Oxygen min', 'Secchi max', 'Secchi spring max', 'Zoop max')
   
   ##### Functions #####
   all_na <- function(x) all(is.na(x))
@@ -42,15 +40,17 @@ figure3 <- function(path_in, path_out, path_out2) {
   
   compareLakes <- function(useLakes, colors, useTitle) {
     
-    df1 = dat %>% 
+    df1 = dat %>%
+      mutate(dayWeibull = if_else(metric %in% c('iceoff','iceon'), daynum, dayWeibull)) |> 
+      mutate(dayWeibull = if_else(dayWeibull == -999, NA_real_, dayWeibull)) |> 
       filter(lakeid %in% useLakes) |> 
       filter(metric %in% vars_order) %>% 
       mutate(lakeid = factor(lakeid, levels = lakes_order),
              metric = factor(metric, levels = rev(vars_order), labels = rev(vars_labels))) 
     
     df1.Cor = df1 |> 
-      dplyr::select(lakeid, year, metric, daynum) |> 
-      pivot_wider(names_from = lakeid, values_from = daynum) |> 
+      dplyr::select(lakeid, year, metric, dayWeibull) |> 
+      pivot_wider(names_from = lakeid, values_from = dayWeibull) |> 
       mutate(across(where(all_na), ~replace_na(.x, 0))) |> 
       group_by(metric) |>
       na.omit() |> 
@@ -60,12 +60,12 @@ figure3 <- function(path_in, path_out, path_out2) {
     
     
     p1 = ggplot(df1) + 
-      geom_boxplot(aes(x = as.Date(daynum, origin = as.Date('2019-01-01')), 
+      geom_boxplot(aes(x = as.Date(dayWeibull, origin = as.Date('2019-01-01')), 
                        y = metric, color = lakeid, fill = lakeid), 
                    alpha = 0.5, position = position_dodge(0.2), size = 0.2, outlier.size = 1, outlier.stroke = 0.2) +
       geom_point(data = df1.Cor |> filter(corP <= 0.05), aes(x =  as.Date('2019-03-01'), y = metric), size = 1, shape = 8) +
-      geom_hline(aes(yintercept = 6.5), linetype = 2, size = 0.2) +
-      geom_hline(aes(yintercept = 12.5), linetype = 2, size = 0.2) +
+      geom_hline(aes(yintercept = 4.5), linetype = 2, size = 0.2) +
+      geom_hline(aes(yintercept = 9.5), linetype = 2, size = 0.2) +
       scale_fill_manual(values = colors) + 
       scale_color_manual(values = colors) + 
       scale_x_date(labels = date_format("%b"), breaks = '3 months', minor_breaks = '1 month') +

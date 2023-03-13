@@ -2,25 +2,23 @@
 ### Figure 1 ###
 
 figure1_v2 <- function(path_in, path_out) {
-  dat = read_csv(path_in)
+  dat = read_csv(path_in) |> 
+    mutate(dayWeibull = if_else(metric %in% c('iceoff','iceon'), daynum, dayWeibull)) |> 
+    mutate(dayWeibull = if_else(dayWeibull == -999, NA_real_, dayWeibull))
   
   vars_order = c("", "iceoff", "straton", "stability", "energy","stratoff", "iceon",
-                 # "doc_epiMax", 
-                 "drsif_epiMin",  "totnuf_epiMin", "totpuf_epiMin", 
-                 "totnuf_hypoMax","totpuf_hypoMax", 
-                 "minimum_oxygen", "secchi_max", "secchi_min", "zoopDensity")
+                 "drsif_surfMin", "nh4_surfMin", "no3no2_surfMin", 'totpuf_surfMin', 'doc_surfMax',
+                 "minimum_oxygen", "secchi_max", "secchi_springmax", "zoop_max")
   
   vars_label = c("","Ice off", "Strat onset", "Stability", "Energy", 'Strat offset','Ice on',
-                 # 'DOC epi max', 
-                 'Si epi min', 'TN epi min', 'TP epi min', 
-                 'TN hypo max', 'TP hypo max',
-                 'Oxygen min', 'Secchi max', 'Secchi min', 'Zoop Density')
+                 'Si surf min', 'NH4 surf min', 'NO3 surf min', 'TP surf min', 'DOC surf max',
+                 'Oxygen min', 'Secchi max', 'Secchi spring max', 'Zoop max')
   
-  lakes_order = c("AL", "BM", "CB", "CR", "SP", "TB", "TR", "ME", "MO", "WI")
+  lakes_order = c("AL", "BM", "CR", "SP","TR", "CB", "TB", "ME", "MO", "WI")
   
   dat.iqr = dat |> 
     group_by(lakeid, metric) |> 
-    summarise(day.mean = mean(daynum, na.rm = T), day.IQR = IQR(daynum, na.rm = T)) |> 
+    summarise(day.mean = mean(dayWeibull, na.rm = T), day.IQR = IQR(dayWeibull, na.rm = T)) |> 
     ungroup() |> 
     mutate(lakeid = factor(lakeid, levels = lakes_order)) |> 
     mutate(metric = factor(metric, levels = vars_order)) |> 
@@ -35,7 +33,10 @@ figure1_v2 <- function(path_in, path_out) {
       ggplot() + 
       stat_density_ridges(aes(x = as.Date(daynum, origin = as.Date('2019-01-01')), 
                               y= metric, col = metric, fill = metric), 
-                          alpha = 0.5, quantile_lines = T, quantiles = 2, linewidth = 0.3) +
+                          alpha = 0.3, quantile_lines = T, quantiles = 2, size = 0.2, linetype = 2) +
+      stat_density_ridges(aes(x = as.Date(dayWeibull, origin = as.Date('2019-01-01')), 
+                              y= metric, col = metric, fill = metric), 
+                          alpha = 0.5, quantile_lines = T, quantiles = 2, size = 0.3) +
       # scale_fill_manual(values=met.brewer("Archambault", length(vars_order))) + 
       # scale_color_manual(values=met.brewer("Archambault", length(vars_order))) +
       scale_fill_manual(values = rev(c(rep('#e3d35d',6), rep('#97bab7',5), rep('#bf7058',4)))) +
@@ -73,7 +74,7 @@ figure1_v2 <- function(path_in, path_out) {
       # scale_fill_manual(values=met.brewer("Archambault", length(vars_order))) + 
       theme_minimal(base_size = 8) +
       # labs(title = 'IQR (days)') +
-      xlim(0,200) +
+      xlim(0,125) +
       theme(axis.text.y = element_blank(),
             axis.title = element_blank(),
             legend.position = 'none',
@@ -85,7 +86,7 @@ figure1_v2 <- function(path_in, path_out) {
   
   
   
-  p1 = plotridge(uselakes = c("BM", "TR"))
+  p1 = plotridge(uselakes = c("BM", "TR")); p1
   p1.5 = plotridge(uselakes = c("CR", "SP"))
   p2 = plotridge(uselakes = c("CB","TB"))
   p3 = plotridge(uselakes = c("ME", "MO"))

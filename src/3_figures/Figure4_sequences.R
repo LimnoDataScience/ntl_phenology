@@ -18,7 +18,7 @@ df <- data %>%
   group_by(trophic, metric) %>%
   mutate(
     daynum_centered = daynum - mean(daynum, na.rm = T),
-         mean_trophic = mean(daynum, na.rm = T))
+    mean_trophic = mean(daynum, na.rm = T))
 
 
 
@@ -42,60 +42,60 @@ data = c()
 data_plot = c()
 
 for (lakenames in unique(df_red$lakeid)){
-    data_HMM = df_red %>%
-      filter(lakeid == lakenames) %>%
-      mutate(year_norm = year - min(year),
-             time_norm = daynum + year_norm * 365) %>%
-      rename(event = metric,
-             time = time_norm,
-             hidden_state = year_norm) %>%
-      mutate(event = as.factor(event),
-             hidden_state = as.factor(year)) %>%
-      arrange(hidden_state, time) %>%
-      mutate(event = as.numeric(event)) %>%
-      dplyr::select(event, hidden_state)
-    data_HMM <- data_HMM[,-1]
-    
-    data_HMM$event_id =  rep(paste0('event_',seq(1,metric_n)), nrow(data_HMM)/metric_n)
-    
-    data_HMM_plot = df_red %>%
-      filter(lakeid == lakenames) %>%
-      mutate(year_norm = year - min(year),
-             time_norm = daynum + year_norm * 365) %>%
-      rename(event = metric,
-             time = time_norm,
-             hidden_state = year_norm) %>%
-      mutate(event = as.factor(event),
-             hidden_state = as.factor(year)) %>%
-      arrange(hidden_state, time) %>%
-      dplyr::select(event, hidden_state)
-    data_HMM_plot <- data_HMM_plot[,-1]
-    
-    data_HMM_plot$event_id =  rep(paste0('event_',seq(1,metric_n)), nrow(data_HMM)/metric_n)
-    
-    data_plot = rbind(data_plot, data_HMM_plot)
-    
-    data_HMM = data_HMM %>%
-      group_by(hidden_state) %>%
-      pivot_wider(names_from = event_id, values_from = event)
-    
-    data =as.data.frame(data_HMM[, -1])
+  data_HMM = df_red %>%
+    filter(lakeid == lakenames) %>%
+    mutate(year_norm = year - min(year),
+           time_norm = daynum + year_norm * 365) %>%
+    rename(event = metric,
+           time = time_norm,
+           hidden_state = year_norm) %>%
+    mutate(event = as.factor(event),
+           hidden_state = as.factor(year)) %>%
+    arrange(hidden_state, time) %>%
+    mutate(event = as.numeric(event)) %>%
+    dplyr::select(event, hidden_state)
+  data_HMM <- data_HMM[,-1]
   
-
+  data_HMM$event_id =  rep(paste0('event_',seq(1,metric_n)), nrow(data_HMM)/metric_n)
+  
+  data_HMM_plot = df_red %>%
+    filter(lakeid == lakenames) %>%
+    mutate(year_norm = year - min(year),
+           time_norm = daynum + year_norm * 365) %>%
+    rename(event = metric,
+           time = time_norm,
+           hidden_state = year_norm) %>%
+    mutate(event = as.factor(event),
+           hidden_state = as.factor(year)) %>%
+    arrange(hidden_state, time) %>%
+    dplyr::select(event, hidden_state)
+  data_HMM_plot <- data_HMM_plot[,-1]
+  
+  data_HMM_plot$event_id =  rep(paste0('event_',seq(1,metric_n)), nrow(data_HMM)/metric_n)
+  
+  data_plot = rbind(data_plot, data_HMM_plot)
+  
+  data_HMM = data_HMM %>%
+    group_by(hidden_state) %>%
+    pivot_wider(names_from = event_id, values_from = event)
+  
+  data =as.data.frame(data_HMM[, -1])
+  
+  
   seq <- seqdef(data)
-
+  
   
   trate = seqtrate(seq)
   heatTrate = reshape2::melt(trate)
-
+  
   scost <- seqsubm(seq, method="CONSTANT", cval=2)
   mean_data = data_plot %>% group_by(event_id) %>% count(event) %>% filter(n==max(n))
   mean_data_seq = as.data.frame(t(as.matrix(match(mean_data$event,  levels(df_red$metric)))))
   colnames(mean_data_seq) = colnames(data)
-
+  
   om_time <- seqdist(seq, method = "OM", indel = 1, sm = scost, full.matrix = FALSE)
-
-
+  
+  
   
   costs[[match(lakenames, unique(df_red$lakeid))]] = as.vector(om_time)
   
@@ -120,10 +120,10 @@ for (lakenames in unique(df_red$lakeid)){
 
 
 p.out = (sequencePlots[['BM']] +   sequencePlots[['TR']]) /
-(sequencePlots[['CR']] +   sequencePlots[['SP']]) /
-(sequencePlots[['CB']] +   sequencePlots[['TB']]) /
+  (sequencePlots[['CR']] +   sequencePlots[['SP']]) /
+  (sequencePlots[['CB']] +   sequencePlots[['TB']]) /
   (sequencePlots[['ME']] +   sequencePlots[['MO']]) /
-(sequencePlots[['AL']] +   sequencePlots[['WI']]) +  plot_layout(guides = 'collect') &
+  (sequencePlots[['AL']] +   sequencePlots[['WI']]) +  plot_layout(guides = 'collect') &
   theme(legend.position = 'bottom',
         legend.margin=margin(t = 0, unit='cm'),
         legend.key.size = unit(0.3,'cm')) & 
@@ -132,4 +132,3 @@ p.out = (sequencePlots[['BM']] +   sequencePlots[['TR']]) /
 ggsave(p.out, filename = 'Figures_manuscript/Figure4.png', dpi = 500, width = 6, height = 6)
 
 
-  

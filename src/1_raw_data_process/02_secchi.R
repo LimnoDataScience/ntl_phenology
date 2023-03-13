@@ -35,7 +35,7 @@ secchi <- function(ice_file, strat_file, path_out) {
   secchi = LTERsecchi |> select(lakeid:sampledate, secnview, ice) |> 
     filter(!is.na(secnview)) |> 
     left_join(iceOff) |> 
-    filter(sampledate > lastice) |> # filter dates after ice on
+    filter(sampledate > lastice) |> # filter dates after ice off
     left_join(stratOff) |> 
     filter(daynum < stratoff) |>  # filter dates before fall mixing
     left_join(iceOn) |> 

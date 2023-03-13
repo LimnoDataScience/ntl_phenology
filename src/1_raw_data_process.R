@@ -30,19 +30,21 @@ p1_targets_list <- list(
   tar_target(
     name = nutrients_csv,
     nutrients(ice_file = ice_csv,
-            path_out = "Data/final_metric_files/nutrients.csv"),
+             path_out = "Data/final_metric_files/nutrients.csv"),
     format = "file",
   ),
   tar_target(
     name = secchi_csv,
     secchi(ice_file = ice_csv,
            strat_file = physics_csv,
-          path_out = "Data/final_metric_files/secchi.csv"),
+           path_out = "Data/final_metric_files/secchi.csv"),
     format = "file",
   ),
   tar_target(
     name = zoopDensity_csv,
-    zoopDensity(path_out = "Data/final_metric_files/zoop_density.csv"),
+    zoopDensity(ice_file = ice_csv,
+                strat_file = physics_csv,
+                path_out = "Data/final_metric_files/zoop_density.csv"),
     format = "file",
   )
 )

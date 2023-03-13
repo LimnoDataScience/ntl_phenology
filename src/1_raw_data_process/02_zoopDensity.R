@@ -1,5 +1,5 @@
 
-zoopDensity <- function(path_out) {
+zoopDensity <- function(ice_file, strat_file, path_out) {
 
   #### Download southern lake zooplankton data from EDI ####
   inUrl1 <- "https://pasta.lternet.edu/package/data/eml/knb-lter-ntl/90/33/5880c7ba184589e239aec9c55f9d313b"
@@ -14,15 +14,21 @@ zoopDensity <- function(path_out) {
   dt2 <-read_csv(infile1)
   
   # get ice on/off dates
-  ice0 = read_csv("Data/final_metric_files/ice.csv") |> 
+  iceOff = read_csv(ice_file) |> 
     filter(metric == 'iceoff') |> 
-    dplyr::select(lakeid, year4 = year, lastice = sampledate)
+    select(lakeid, year4 = year, lastice = sampledate)
+  
+  stratOff = read_csv(strat_file) |> 
+    filter(metric == 'stratoff') |> 
+    select(lakeid, year4 = year, stratoff = sampledate)
   
   #Combine files
   zoops = dt1 |> dplyr::select(-towdepth) |> 
     bind_rows(dt2) |> 
-    left_join(ice0) |> 
-    filter(sample_date > lastice) |> 
+    left_join(iceOff) |> 
+    filter(sample_date > lastice) |> # filter dates after ice off
+    left_join(stratOff) |> 
+    filter(sample_date < stratoff) |>  # filter dates before fall mixing
     mutate(code = floor(species_code/10000), daynum = yday(sample_date)) |>
     mutate(zoopGroup = case_when(code == 1 ~ 'copepod nauplii',
                                  code == 2 ~ 'copepod',
