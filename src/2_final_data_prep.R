@@ -7,10 +7,15 @@ source('src/2_final_data_prep/00_combine_final_files.R')
 
 p2_targets_list <- list(
   tar_target(name = vars_order, c("iceoff", "straton", "stability", "energy", "stratoff", "iceon",
-                           "doc_surfMax", "drsif_surfMin",  "totnuf_surfMin", "totpuf_surfMin", 
-                           "totnuf_botMax","totpuf_botMax", 
+                           "drsif_surfMin",  "drsif_surfMax", 
+                           "totpuf_surfMin", 'totpuf_sufMax',  
+                           "totnuf_surfMin", 'totnuf_sufMax', 
+                           'nh4_surfMin', 'nh4_sufMax',
+                           'no3no2_surfMin', 'nh4_surMax',
+                           'drp_surfMin','drp_botMax',
+                           'doc_surfMin','doc_surfMax', 
                            "minimum_oxygen", "secchi_max", "secchi_min", "zoop_max",
-                           "drsif_surfSpringMin","zoop_springmax","secchi_springmax")),
+                           "drsif_springSurfMin","zoop_springmax","secchi_springmax")),
   tar_target(
     name = combine_final_files_csv,
     combine_final_files(

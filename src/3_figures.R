@@ -23,13 +23,13 @@ p3_targets_list <- list(
   #     path_out = "Figures_manuscript/Figure1.png")
   # ),
   tar_target(name = vars_order2, c("iceoff", "straton", "stability", "energy","stratoff", "iceon",
-                                   "drsif_epiSpringMin", "drsif_epiMin",  "totnuf_epiMin", "totpuf_epiMin", 
-                                   "totnuf_hypoMax","totpuf_hypoMax", 
+                                   "drsif_surfSpringMin", "drsif_surfMin",  "totnuf_surfMin", "totpuf_surfMin", 
+                                   "totnuf_botMax","totpuf_botMax", 
                                    "minimum_oxygen", "secchi_springmax", "secchi_max", "secchi_min", 
-                                   "zoopDensity_spring", "zoopDensity")),
+                                   "zoop_springmax", "zoop_max")),
   tar_target(name = vars_labels2, c("Ice off", "Strat onset", "Stability", "Energy", 'Strat offset','Ice on',
-                                    'Si spring min', 'Si epi min', 'TN epi min', 'TP epi min', 
-                                    'TN hypo max', 'TP hypo max',
+                                    'Si spring min', 'Si surf min', 'TN surf min', 'TP surf min', 
+                                    'TN bot max', 'TP bot max',
                                     'Oxygen min', 'Secchi spring max', 'Secchi max', 'Secchi min','Zoop spring max', 'Zoop max')),
   tar_target(
     name = figure1_v2_png,

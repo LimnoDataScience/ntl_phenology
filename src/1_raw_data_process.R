@@ -36,6 +36,7 @@ p1_targets_list <- list(
   tar_target(
     name = secchi_csv,
     secchi(ice_file = ice_csv,
+           strat_file = physics_csv,
           path_out = "Data/final_metric_files/secchi.csv"),
     format = "file",
   ),

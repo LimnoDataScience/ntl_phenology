@@ -1,8 +1,8 @@
 
-secchi <- function(ice_file, path_out) {
+secchi <- function(ice_file, strat_file, path_out) {
   # Updated 2023-03-10 - Hilary Dugan
   
-  #################### LOAD DATA ####################
+  #################### LOAD SECCHI DATA ####################
   inUrl1 <- "https://pasta.lternet.edu/package/data/eml/knb-lter-ntl/31/29/5a5a5606737d760b61c43bc59460ccc9"
   infile1 <- tempfile()
   download.file(inUrl1, infile1, method = "libcurl")
@@ -27,10 +27,17 @@ secchi <- function(ice_file, path_out) {
     filter(metric == 'iceon') |> 
     select(lakeid, year4 = year, firstice = daynum)
   
+  stratOff = read_csv(strat_file) |> 
+    filter(metric == 'stratoff') |> 
+    select(lakeid, year4 = year, stratoff = daynum)
+  
+
   secchi = LTERsecchi |> select(lakeid:sampledate, secnview, ice) |> 
     filter(!is.na(secnview)) |> 
     left_join(iceOff) |> 
-    filter(sampledate > lastice) |> 
+    filter(sampledate > lastice) |> # filter dates after ice on
+    left_join(stratOff) |> 
+    filter(daynum < stratoff) |>  # filter dates before fall mixing
     left_join(iceOn) |> 
     filter(daynum < firstice) |>  # using daynum because ice-on can switch years
     group_by(lakeid, year4) |> 
