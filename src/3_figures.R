@@ -23,15 +23,13 @@ p3_targets_list <- list(
   #   figure1(path_in = 'Data/analysis_ready/final_combined_dates_filled_v2.csv',
   #     path_out = "Figures_manuscript/Figure1.png")
   # ),
+  
   tar_target(name = vars_order2, c("iceoff", "straton", "stability", "energy","stratoff", "iceon",
-                                   "drsif_surfSpringMin", "drsif_surfMin",  "totnuf_surfMin", "totpuf_surfMin", 
-                                   "totnuf_botMax","totpuf_botMax", 
-                                   "minimum_oxygen", "secchi_springmax", "secchi_max", "secchi_min", 
-                                   "zoop_springmax", "zoop_max")),
+                                   "drsif_surfMin", "nh4_surfMin", "no3no2_surfMin", 'totpuf_surfMin', 'doc_surfMax',
+                                   "minimum_oxygen", "secchi_max", "secchi_springmax")),
   tar_target(name = vars_labels2, c("Ice off", "Strat onset", "Stability", "Energy", 'Strat offset','Ice on',
-                                    'Si spring min', 'Si surf min', 'TN surf min', 'TP surf min', 
-                                    'TN bot max', 'TP bot max',
-                                    'Oxygen min', 'Secchi spring max', 'Secchi max', 'Secchi min','Zoop spring max', 'Zoop max')),
+                                    'Si surf min', 'NH4 surf min', 'NO3 surf min', 'TP surf min', 'DOC surf max',
+                                    'Oxygen min', 'Secchi max', 'Secchi spring max')),
   tar_target(
     name = figure1_v2_png,
     figure1_v2(path_in = combine_final_files_csv,

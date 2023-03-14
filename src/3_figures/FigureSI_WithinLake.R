@@ -12,15 +12,12 @@ figureSI_withinLake <- function(path_in, path_out) {
   
   
   vars_order = c("iceoff", "straton", "stability", "energy","stratoff", "iceon",
-                 "drsif_epiSpringMin", "drsif_epiMin",  "totnuf_epiMin", "totpuf_epiMin", 
-                 "totnuf_hypoMax","totpuf_hypoMax", 
-                 "minimum_oxygen", "secchi_springmax", "secchi_max", "secchi_min", "zoopDensity_spring", "zoopDensity")
+                 "drsif_surfMin", "nh4_surfMin", "no3no2_surfMin", 'totpuf_surfMin', 'doc_surfMax',
+                 "minimum_oxygen", "secchi_max", "secchi_springmax")
   
   vars_labels = c("Ice off", "Strat onset", "Stability", "Energy", 'Strat offset','Ice on',
-                  'Si spring min', 'Si epi min', 'TN epi min', 'TP epi min', 
-                  'TN hypo max', 'TP hypo max',
-                  'Oxygen min', 'Secchi spring max', 'Secchi max', 'Secchi min','Zoop spring max', 'Zoop max')
-  
+                  'Si surf min', 'NH4 surf min', 'NO3 surf min', 'TP surf min', 'DOC surf max',
+                  'Oxygen min', 'Secchi max', 'Secchi spring max')
   
   ################################ Correlation ################################
   # read in data
@@ -33,12 +30,14 @@ figureSI_withinLake <- function(path_in, path_out) {
   coff.df.list = list()
   for (i in 1:length(lakenames)) {
     useVars = dat |> 
+      mutate(dayWeibull = if_else(metric %in% c('iceoff','iceon'), daynum, dayWeibull)) |> 
+      mutate(dayWeibull = if_else(dayWeibull == -999, NA_real_, dayWeibull)) |> 
       filter(lakeid == lakenames[i]) |> 
       mutate(metric = factor(metric, levels = vars_order)) |> 
       filter(!is.na(metric)) |> 
-      dplyr::select(year, metric, daynum) |> 
+      dplyr::select(year, metric, dayWeibull) |> 
       arrange(metric) |> 
-      pivot_wider(names_from = metric, values_from = daynum) |> 
+      pivot_wider(names_from = metric, values_from = dayWeibull) |> 
       dplyr::select(-year)
     
     ###### Compute a correlation matrix ######
@@ -102,7 +101,7 @@ figureSI_withinLake <- function(path_in, path_out) {
   plotcor <- function(uselakes, usecolors) {
     
     box1 = 6.5
-    box2 = 12.5
+    box2 = 11.5
     
     coff.df |> filter(lakeid %in% uselakes) |> 
       # need a row with ice on so axes match up in figure 
