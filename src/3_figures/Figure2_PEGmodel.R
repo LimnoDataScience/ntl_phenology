@@ -3,32 +3,38 @@
 figure2 <- function(path_in, path_out, path_out2) {
   
   # Which spring metrics
-  useorder = c("drsif_epiSpringMin","zoopDensity_spring","secchi_springmax")
+  useorder = c("drsif_springSurfMin","zoop_springmax","secchi_springmax")
   lakeorder = c('BM','TR','CR','SP','CB','TB','ME','MO','AL','WI')
-  lakenames = data.frame(lakeid = lakeorder, 
+  lakenames = data.frame(lakeid = lakeorder,
                          lakenames = c('Big Musky','Trout', 'Crystal', 'Sparkling', 'Crystal Bog','Trout Bog',
                                        'Mendota', 'Monona', 'Allequash', 'Wingra'))
+
+  lakeorder = c('ME','MO','WI')
+  lakenames = data.frame(lakeid = lakeorder,
+                         lakenames = c('Mendota', 'Monona', 'Wingra'))
   
   # Read in data
   dat = read_csv(path_in) |> 
     # filter(!(lakeid == 'WI' & year < 2007)) |> 
     filter(lakeid %in% lakeorder) |> 
     filter(metric %in% useorder) |> 
+    mutate(dayWeibull = if_else(metric %in% c('iceoff','iceon'), daynum, dayWeibull)) |> 
+    mutate(dayWeibull = if_else(dayWeibull == -999, NA_real_, dayWeibull)) |> 
     group_by(lakeid, year) %>%
-    mutate(missing = if_else(any(is.na(daynum)), TRUE, FALSE)) |>
+    mutate(missing = if_else(any(is.na(dayWeibull)), TRUE, FALSE)) |>
     ungroup() |> 
-    mutate(daynum = if_else(missing == TRUE, NA_real_, daynum)) 
+    mutate(dayWeibull = if_else(missing == TRUE, NA_real_, dayWeibull)) 
   
   # Find PEG years
   PEGyears = dat |> 
     # filter(missing == FALSE) |> 
     group_by(lakeid, year) |> 
     mutate(n = n()) |> filter(n == 3) |> 
-    mutate(order = case_when(metric == 'drsif_epiSpringMin' ~ 1,
-                             metric == 'zoopDensity_spring' ~ 2,
+    mutate(order = case_when(metric == 'drsif_springSurfMin' ~ 1,
+                             metric == 'zoop_springmax' ~ 2,
                              metric == 'secchi_springmax' ~ 3)) |> 
     arrange(order, .by_group = TRUE) |> 
-    mutate(rank = data.table::frank(daynum, ties.method = 'average')) |> 
+    mutate(rank = data.table::frank(dayWeibull, ties.method = 'average')) |> 
     mutate(use = case_when(first(rank) == 1 & last(rank) == 3 ~ TRUE,
                            first(rank) == 1.5 & last(rank) == 3 ~ TRUE,
                            first(rank) == 1 & last(rank) == 2.5 ~ TRUE,
@@ -42,18 +48,18 @@ figure2 <- function(path_in, path_out, path_out2) {
     mutate(PEGper = 100*PEG/total)
   
   # PEG days between silica min and max Secchi
-  dat |> dplyr::select(lakeid, year, metric, daynum) |> 
-    pivot_wider(names_from = metric, values_from = daynum) |> 
-    mutate(diff = secchi_springmax - drsif_epiSpringMin) |> 
+  dat |> dplyr::select(lakeid, year, metric, dayWeibull) |> 
+    pivot_wider(names_from = metric, values_from = dayWeibull) |> 
+    mutate(diff = secchi_springmax - drsif_springSurfMin) |> 
     group_by(lakeid) |> 
     summarise(meandiff = mean(diff, na.rm = T), mediandiff = median(diff, na.rm = T))
   
   # t-test on days 
   stat.out = dat |> 
     filter(lakeid %in% c('ME','MO','CR','TR','AL')) |> 
-    dplyr::select(lakeid, year, metric, daynum) |> 
-    pivot_wider(names_from = metric, values_from = daynum) |> 
-    mutate(diff = secchi_springmax - drsif_epiSpringMin) |> 
+    dplyr::select(lakeid, year, metric, dayWeibull) |> 
+    pivot_wider(names_from = metric, values_from = dayWeibull) |> 
+    mutate(diff = secchi_springmax - drsif_springSurfMin) |> 
     dplyr::select(year, lakeid, diff) |> 
     mutate(lakeid = as.factor(lakeid)) |> 
   pairwise_t_test(
@@ -72,8 +78,8 @@ figure2 <- function(path_in, path_out, path_out2) {
     geom_segment(data = . %>% filter(use == TRUE), aes(x = structure(-Inf, class = "Date"), 
                                                        xend = structure(Inf, class = "Date"), y = year, yend = year),
                  color = 'grey80', size = 3) +
-    geom_path(aes(x = as.Date(daynum, origin = as.Date('2019-01-01')), y = year, col = metric)) +
-    geom_jitter(aes(x = as.Date(daynum, origin = as.Date('2019-01-01')), y = year, fill = metric), 
+    geom_path(aes(x = as.Date(dayWeibull, origin = as.Date('2019-01-01')), y = year, col = metric)) +
+    geom_jitter(aes(x = as.Date(dayWeibull, origin = as.Date('2019-01-01')), y = year, fill = metric), 
                 shape = 21, stroke = 0.2,
                 width = 0, height = 0.1) +
     scale_color_manual(values = c('#97bab7','#e0c3ba','#bf7058'), 
@@ -99,7 +105,7 @@ figure2 <- function(path_in, path_out, path_out2) {
   names = lakenames |> pull(lakenames)
   
   read_csv(path_in) |> filter(metric == 'iceoff') |> 
-    dplyr::select(lakeid, year, daynum) |> 
+    dplyr::select(lakeid, year, dayWeibull) |> 
     left_join(PEGyears) |>
     left_join(lakenames) |> 
     mutate(use = if_else(use == TRUE, 'PEG year', 'Other')) |> 
@@ -107,7 +113,7 @@ figure2 <- function(path_in, path_out, path_out2) {
     mutate(lakenames = factor(lakenames, levels = names)) |> 
     filter(!is.na(use)) |> 
     ggplot() + 
-    geom_histogram(aes(x = as.Date(daynum, origin = as.Date('2019-01-01')), group = use, 
+    geom_histogram(aes(x = as.Date(dayWeibull, origin = as.Date('2019-01-01')), group = use, 
                        fill = use, color = use),  size = 0.2, 
                    binwidth = 7, alpha = 0.5, position="identity") + 
     scale_x_date(labels = date_format("%b"), minor_breaks = '1 month', 
