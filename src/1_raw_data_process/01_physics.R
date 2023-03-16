@@ -144,10 +144,12 @@ physics <- function(path_in, path_out, path_out_derived) {
                 area = approx(hyp$Depth_m, hyp$area, seq(min(depth), max(depth),dz))$y,
                 density = approx(depth, wdens, seq(min(depth), max(depth),dz))$y,
                 temp = approx(depth, wtemp, seq(min(depth), max(depth),dz))$y) %>%
-      mutate('energy' = (area * dz) * density *temp * 4186,
-             'n2' = c(0,buoyancy.freq(temp, z))) %>%
+      mutate('energy' = (area * dz) * density * temp * 4186, # 4186 = Specific heat capacity of water
+             'n2' = c(0,buoyancy.freq(temp, z)),
+             'schmidt' = as.numeric(schmidt.stability(wtr = temp, depths = z, bthA = area, bthD = z))) %>%
       summarise('energy' = sum(energy, na.rm = T)/max(area, na.rm = T),
-                'n2max' = max(n2))
+                'n2max' = max(n2), 
+                'schmidt' = mean(schmidt, na.rm = T))
     
     # Get oxygen
     an <- data.o2.lake %>%
@@ -209,6 +211,18 @@ physics <- function(path_in, path_out, path_out_derived) {
       mutate(metric = 'stability')  |> 
       dplyr::select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)
     
+    # stability
+    schmidt.df = en %>% 
+      group_by(year) %>% 
+      slice_max(schmidt, with_ties = FALSE, n = 1) |>  # if ties, dplyr::select the first
+      mutate(daynum = yday(sampledate)) |> 
+      left_join(
+        en |> mutate(daynum = yday(sampledate)) |> 
+          group_modify(~weibull.year(.x, 'schmidt', find = 'max', datacutoff = 8), .keep = TRUE)
+      ) |> 
+      mutate(metric = 'schmidt')  |> 
+      dplyr::select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)
+    
     # Get minimum anoxia after spring stratification 
     anoxia.summer = an %>% ungroup() %>% 
       left_join(straton.df |> dplyr::select(year, straton = sampledate)) |> 
@@ -227,7 +241,7 @@ physics <- function(path_in, path_out, path_out_derived) {
       dplyr::select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)
       
     # Join anoxia to strat dataframe
-    strat.list[[name]] = bind_rows(straton.df, stratoff.df, en.df, stability.df, anoxia.df) |> 
+    strat.list[[name]] = bind_rows(straton.df, stratoff.df, en.df, stability.df, schmidt.df, anoxia.df) |> 
       mutate(lakeid = name) |> dplyr::select(lakeid, everything())
   }
   

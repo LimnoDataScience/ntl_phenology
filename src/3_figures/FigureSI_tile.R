@@ -1,7 +1,7 @@
 
 figureSI_tile <- function(path_in, path_out) {
   dat = read_csv(path_in)
-  vars_order = c("iceoff", "straton", "stability", "energy", "stratoff", "iceon",
+  vars_order = c("iceoff", "straton", "stability", "energy", "schmidt", "stratoff", "iceon",
                  "drsif_surfMin",  "drsif_surfMax", 
                  
                  "totnuf_surfMin", 'totnuf_surfMax', 
@@ -14,7 +14,7 @@ figureSI_tile <- function(path_in, path_out) {
                  "minimum_oxygen", "secchi_max", "secchi_min", "zoop_max",
                  "drsif_springSurfMin","zoop_springmax","secchi_springmax")
   
-  vars_labels = c("Ice off", "Strat onset", "Stability", "Energy", 'Strat offset','Ice on',
+  vars_labels = c("Ice off", "Strat onset", "Stability", "Energy", "Schmidt", 'Strat offset','Ice on',
                   "drsif_surfMin",  "drsif_surfMax", 
                   
                   "totnuf_surfMin", 'totnuf_surfMax', 
@@ -58,7 +58,7 @@ figureSI_tile <- function(path_in, path_out) {
             axis.title.x = element_blank())
   }
   
-  usevars = c("Ice off", "Strat onset", "Stability", "Energy", 'Strat offset','Ice on')
+  usevars = c("Ice off", "Strat onset", "Stability", "Energy", "Schmidt", 'Strat offset','Ice on')
   p1 = makeTile(usevars)
   
   usevars = c("drsif_surfMin",  "drsif_surfMax", 

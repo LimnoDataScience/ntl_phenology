@@ -6,7 +6,7 @@ source('src/2_final_data_prep/00_combine_final_files.R')
 # source('src/2_final_data_prep/01_missing_dates_fill.R')
 
 p2_targets_list <- list(
-  tar_target(name = vars_order, c("iceoff", "straton", "stability", "energy", "stratoff", "iceon",
+  tar_target(name = vars_order, c("iceoff", "straton", "stability", "energy", "schmidt", "stratoff", "iceon",
                            "drsif_surfMin",  "drsif_surfMax", 
                            "totpuf_surfMin", 'totpuf_surfMax',  
                            "totnuf_surfMin", 'totnuf_surfMax', 

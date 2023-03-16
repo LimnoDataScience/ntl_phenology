@@ -8,11 +8,11 @@ figure3 <- function(path_in, path_out, path_out2) {
   
   lakes_order = c("AL", "BM", "CB", "CR", "SP", "TB", "TR", "ME", "MO", "WI")
   
-  vars_order = c("iceoff", "straton", "stability", "energy","stratoff", "iceon",
+  vars_order = c("iceoff", "straton", "energy", "schmidt", "stratoff", "iceon",
                  "drsif_surfMin", "nh4_surfMin", "no3no2_surfMin", 'totpuf_surfMin', 'doc_surfMax',
                  "minimum_oxygen", "secchi_max", "secchi_springmax", "zoop_max")
 
-  vars_labels = c("Ice off", "Strat onset", "Stability", "Energy", 'Strat offset','Ice on',
+  vars_labels = c("Ice off", "Strat onset", "Energy", "Schmidt", 'Strat offset','Ice on',
                   'Si surf min', 'NH4 surf min', 'NO3 surf min', 'TP surf min', 'DOC surf max',
                   'Oxygen min', 'Secchi max', 'Secchi spring max', 'Zoop max')
   

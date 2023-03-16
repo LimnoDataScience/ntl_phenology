@@ -7,12 +7,16 @@ tar_option_set(packages = c("lubridate",
                             "patchwork",
                             "ggcorrplot",
                             "corrr",
-                            "rstatix"))
+                            "rstatix",
+                            "TraMineR",
+                            # "depmixS4",
+                            "seqHMM"))
 
 # source("src/3_figures/Figure1_ggridges.R")
 source("src/3_figures/Figure1_ggridges_v2.R")
 source("src/3_figures/Figure2_PEGmodel.R")
 source("src/3_figures/Figure3_betweenLake.R")
+source("src/3_figures/Figure4_sequences.R")
 source("src/3_figures/FigureSI_WithinLake.R")
 source("src/3_figures/FigureSI_MK.R")
 source("src/3_figures/FigureSI_tile.R")
@@ -24,10 +28,10 @@ p3_targets_list <- list(
   #     path_out = "Figures_manuscript/Figure1.png")
   # ),
   
-  tar_target(name = vars_order2, c("iceoff", "straton", "stability", "energy","stratoff", "iceon",
+  tar_target(name = vars_order2, c("iceoff", "straton", "energy", "schmidt", "stratoff", "iceon",
                                    "drsif_surfMin", "nh4_surfMin", "no3no2_surfMin", 'totpuf_surfMin', 'doc_surfMax',
                                    "minimum_oxygen", "secchi_max", "secchi_springmax")),
-  tar_target(name = vars_labels2, c("Ice off", "Strat onset", "Stability", "Energy", 'Strat offset','Ice on',
+  tar_target(name = vars_labels2, c("Ice off", "Strat onset", "Energy", "Schmidt", 'Strat offset','Ice on',
                                     'Si surf min', 'NH4 surf min', 'NO3 surf min', 'TP surf min', 'DOC surf max',
                                     'Oxygen min', 'Secchi max', 'Secchi spring max')),
   tar_target(
@@ -46,6 +50,11 @@ p3_targets_list <- list(
     figure3(path_in = combine_final_files_csv,
             path_out = "Figures_manuscript/Figure3.png",
             path_out2 = 'Figures_manuscript/FigureSI_lakePairs.png')
+  ),
+  tar_target(
+    name = figure4_png,
+    figure4(path_in = combine_final_files_csv,
+            path_out = "Figures_manuscript/Figure4.png")
   ),
   tar_target(
     name = figureSI_tile_png,

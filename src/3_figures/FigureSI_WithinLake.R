@@ -11,11 +11,11 @@
 figureSI_withinLake <- function(path_in, path_out) {
   
   
-  vars_order = c("iceoff", "straton", "stability", "energy","stratoff", "iceon",
+  vars_order = c("iceoff", "straton", "energy", "schmidt", "stratoff", "iceon",
                  "drsif_surfMin", "nh4_surfMin", "no3no2_surfMin", 'totpuf_surfMin', 'doc_surfMax',
                  "minimum_oxygen", "secchi_max", "secchi_springmax")
   
-  vars_labels = c("Ice off", "Strat onset", "Stability", "Energy", 'Strat offset','Ice on',
+  vars_labels = c("Ice off", "Strat onset", "Energy", "Schdmit", 'Strat offset','Ice on',
                   'Si surf min', 'NH4 surf min', 'NO3 surf min', 'TP surf min', 'DOC surf max',
                   'Oxygen min', 'Secchi max', 'Secchi spring max')
   
@@ -33,7 +33,6 @@ figureSI_withinLake <- function(path_in, path_out) {
       mutate(dayWeibull = if_else(metric %in% c('iceoff','iceon'), daynum, dayWeibull)) |> 
       mutate(dayWeibull = if_else(dayWeibull == -999, NA_real_, dayWeibull)) |> 
       filter(lakeid == lakenames[i]) |> 
-      mutate(metric = factor(metric, levels = vars_order)) |> 
       filter(!is.na(metric)) |> 
       dplyr::select(year, metric, dayWeibull) |> 
       arrange(metric) |> 
@@ -86,8 +85,8 @@ figureSI_withinLake <- function(path_in, path_out) {
   coff.df = do.call(rbind.data.frame, coff.df.list) |> 
     mutate(lakeid = factor(lakeid, levels = c("AL", "BM", "CR", "SP", "TR", "CB", "TB", "ME", "MO", "WI"))) |> 
     arrange(Var1) |> 
-    # filter(!is.na(corr.p)) |>
-    # filter(corr.p > 0 & corr.p < 1) |>
+    mutate(Var1 =  factor(Var1, levels = vars_order)) |> 
+    mutate(Var2 =  factor(Var2, levels = vars_order)) |> 
     mutate(lakeid = if_else(!is.na(corr.p), lakeid, as.factor(NA_character_))) |> 
     mutate(lakeid = if_else(corr.p < 1, lakeid, as.factor(NA_character_)))
 
