@@ -32,16 +32,22 @@ figureSI_tile <- function(path_in, path_out) {
   
   test = dat |> 
     filter(lakeid != 'FI') |> 
-    group_by(lakeid, metric) |> 
-    filter(sum(!is.na(dayWeibull)) > 5) |> # we need some data!
-    ungroup() |> filter(!is.na(dayWeibull)) |> #filter out actual NAs (not enough data, not to be confused with -999)
+    # group_by(lakeid, metric) |> 
+    # filter(sum(!is.na(dayWeibull)) > 5) |> # we need some data!
+    # ungroup() |> 
+    filter(!is.na(dayWeibull)) |> #filter out actual NAs (not enough data, not to be confused with -999)
     mutate(dayWeibull = if_else(dayWeibull == -999, NA_real_, dayWeibull)) |> 
+    mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) |> 
     group_by(lakeid, metric) |> 
-    summarise(n = n(), real = sum(!is.na(dayWeibull))) |> 
+    summarise(n = n(), real = sum(weibull.max == TRUE), per = real/n, r2.mean = mean(weibull.r2, na.rm = T)) |> 
     mutate(lakeid = factor(lakeid, levels = lakes_order)) |> 
     mutate(metric = factor(metric, levels = rev(vars_order), labels = rev(vars_labels))) |> 
     filter(!is.na(metric)) |> 
-    mutate(per = real/n) |> 
+    # mutate(per = real/n) |> 
+    mutate(fit = case_when(r2.mean >= 0.9 ~ '0.9 - 1.0',
+                           r2.mean >= 0.8 ~ '0.8 - 0.9',
+                           r2.mean < 0.8 ~ '< 0.8')) |> 
+    mutate(fit = factor(fit, levels = c('< 0.8', '0.8 - 0.9', '0.9 - 1.0'))) |> 
     mutate(perCase = case_when(per >= 0.9 ~ '0.9 - 1.0',
                                per >= 0.8 ~ '0.8 - 0.9',
                                per < 0.8 ~ '< 0.8')) |> 
@@ -50,16 +56,18 @@ figureSI_tile <- function(path_in, path_out) {
   
   makeTile <- function(usevars) {
     ggplot(test |> filter(metric %in% usevars)) +
-      geom_tile(aes(x = lakeid, y = metric, fill = perCase), alpha = 0.8, color = 'black') +
-      geom_text(aes(x = lakeid, y = metric, label = round(per,2)), size = 2.2) +
-      scale_fill_manual(values = c('#8a1a12','#e3c54f','#63ab7f'), drop = F) +
+      geom_tile(aes(x = lakeid, y = metric, fill = fit), alpha = 0.8, color = NA) +
+      geom_tile(data = test |> filter(per >= 0.8, metric %in% usevars), aes(x = lakeid, y = metric), 
+                fill = NA, na.value = NA, color = 'black', size = 1) +
+      geom_text(aes(x = lakeid, y = metric, label = round(r2.mean,2)), size = 2.2) +
+      scale_fill_manual(values = c('#f0a689','#e3c54f','#63ab7f'), drop = F) +
       theme_minimal(base_size = 9) +
       theme(panel.grid.major = element_blank(), 
             axis.title.x = element_blank())
   }
   
   usevars = c("Ice off", "Strat onset", "Stability", "Energy", "Schmidt", 'Strat offset','Ice on')
-  p1 = makeTile(usevars)
+  p1 = makeTile(usevars); p1
   
   usevars = c("drsif_surfMin",  "drsif_surfMax", 
               
@@ -78,6 +86,8 @@ figureSI_tile <- function(path_in, path_out) {
   
   ################################ Join ################################
   p1/p2/p3 + plot_layout(heights = c(4, 14, 7), guides = 'collect')
+  
+  
   
   ggsave(filename = path_out, width = 6, 
          height = 6, dpi = 500)        

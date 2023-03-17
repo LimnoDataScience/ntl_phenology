@@ -66,7 +66,7 @@ zoopDensity <- function(ice_file, strat_file, path_out) {
     
     output = dayMax |> left_join(weibullMax) |> 
       mutate(metric = usemetric) |> 
-      select(lakeid, metric, sampledate, year, daynum, dayWeibull, weibull.r2)
+      select(lakeid, metric, sampledate, year, daynum, dayWeibull, weibull.r2, weibull.max)
     return(output)
   }
   
@@ -76,7 +76,7 @@ zoopDensity <- function(ice_file, strat_file, path_out) {
   
   # Combine datasets 
   zoop.out =  bind_rows(o1, o2) |> 
-    select(lakeid, metric, sampledate, year, daynum, dayWeibull, weibull.r2)
+    select(lakeid, metric, sampledate, year, daynum, dayWeibull, weibull.r2, weibull.max)
   
   # Check for duplicates
   zoop.out |> group_by(lakeid, metric, year) |> filter(n() > 1)

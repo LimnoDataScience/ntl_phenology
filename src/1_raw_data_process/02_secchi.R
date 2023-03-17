@@ -66,7 +66,7 @@ secchi <- function(ice_file, strat_file, path_out) {
     
     output = dayMax |> left_join(weibullMax) |> 
       mutate(metric = usemetric) |> 
-      select(lakeid, metric, sampledate, year, daynum, secnview, dayWeibull, weibull.r2)
+      select(lakeid, metric, sampledate, year, daynum, secnview, dayWeibull, weibull.r2, weibull.max)
     return(output)
   }
   

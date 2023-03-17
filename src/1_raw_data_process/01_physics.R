@@ -174,7 +174,7 @@ physics <- function(path_in, path_out, path_out_derived) {
           group_modify(~weibull.year(.x, 'densdiff', find = 'max', cardinal = 'begin', datacutoff = 8), .keep = TRUE)
       ) |> 
       mutate(metric = 'straton')  |> 
-      dplyr::select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)
+      dplyr::select(metric, sampledate, year, daynum, dayWeibull, weibull.r2, weibull.max)
     
     stratoff.df =  df.lake %>% group_by(year) %>%  
       filter(thermdep > 0) |> 
@@ -185,7 +185,7 @@ physics <- function(path_in, path_out, path_out_derived) {
           group_modify(~weibull.year(.x, 'densdiff', find = 'max', cardinal = 'end', datacutoff = 8), .keep = TRUE)
       ) |> 
       mutate(metric = 'stratoff')  |> 
-      dplyr::select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)
+      dplyr::select(metric, sampledate, year, daynum, dayWeibull, weibull.r2, weibull.max)
       
     # energy output
     en.df = en %>% 
@@ -197,7 +197,7 @@ physics <- function(path_in, path_out, path_out_derived) {
         group_modify(~weibull.year(.x, 'energy', find = 'max', datacutoff = 8), .keep = TRUE)
       ) |> 
       mutate(metric = 'energy')  |> 
-      dplyr::select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)
+      dplyr::select(metric, sampledate, year, daynum, dayWeibull, weibull.r2, weibull.max)
     
     # stability
     stability.df = en %>% 
@@ -209,7 +209,7 @@ physics <- function(path_in, path_out, path_out_derived) {
           group_modify(~weibull.year(.x, 'n2max', find = 'max', datacutoff = 8), .keep = TRUE)
       ) |> 
       mutate(metric = 'stability')  |> 
-      dplyr::select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)
+      dplyr::select(metric, sampledate, year, daynum, dayWeibull, weibull.r2, weibull.max)
     
     # stability
     schmidt.df = en %>% 
@@ -221,7 +221,7 @@ physics <- function(path_in, path_out, path_out_derived) {
           group_modify(~weibull.year(.x, 'schmidt', find = 'max', datacutoff = 8), .keep = TRUE)
       ) |> 
       mutate(metric = 'schmidt')  |> 
-      dplyr::select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)
+      dplyr::select(metric, sampledate, year, daynum, dayWeibull, weibull.r2, weibull.max)
     
     # Get minimum anoxia after spring stratification 
     anoxia.summer = an %>% ungroup() %>% 
@@ -238,7 +238,7 @@ physics <- function(path_in, path_out, path_out_derived) {
           group_modify(~weibull.year(.x, 'do', find = 'min', datacutoff = 5), .keep = TRUE)
       ) |> 
       mutate(metric = 'minimum_oxygen')  |> 
-      dplyr::select(metric, sampledate, year, daynum, dayWeibull, weibull.r2)
+      dplyr::select(metric, sampledate, year, daynum, dayWeibull, weibull.r2, weibull.max)
       
     # Join anoxia to strat dataframe
     strat.list[[name]] = bind_rows(straton.df, stratoff.df, en.df, stability.df, schmidt.df, anoxia.df) |> 
