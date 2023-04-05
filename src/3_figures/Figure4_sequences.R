@@ -13,6 +13,7 @@ figure4 <- function(path_in, path_out, path_out2) {
   df <- dat %>%
     filter(lakeid != 'FI') |> 
     mutate(dayWeibull = if_else(metric %in% c('iceoff','iceon'), daynum, dayWeibull)) |> 
+    mutate(weibull.max = if_else(metric %in% c('iceoff','iceon'), TRUE, weibull.max)) |> 
     mutate(dayWeibull = if_else(dayWeibull == -999, NA_real_, dayWeibull)) |> 
     mutate(trophic = ifelse(lakeid %in% c('ME', 'MO'), 'eutrophic',
                             ifelse(lakeid %in% c('CB', 'TB'), 'dystrophic', 
