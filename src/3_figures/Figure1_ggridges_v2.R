@@ -3,8 +3,11 @@
 
 figure1_v2 <- function(path_in, path_out) {
   dat = read_csv(path_in) |> 
+    mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) |> # filter out dates when peak is greater than beginning and end
     mutate(dayWeibull = if_else(metric %in% c('iceoff','iceon'), daynum, dayWeibull)) |> 
-    mutate(dayWeibull = if_else(dayWeibull == -999, NA_real_, dayWeibull))
+    mutate(weibull.r2 = if_else(metric %in% c('iceoff','iceon'), 1, weibull.r2)) |> 
+    mutate(dayWeibull = if_else(dayWeibull == -999, NA_real_, dayWeibull)) |> 
+    filter(weibull.r2 > 0.7)
   
   vars_order = c("", "iceoff", "straton", "stability", "energy", "schmidt", "stratoff", "iceon",
                  "drsif_surfMin", "nh4_surfMin", "no3no2_surfMin", 'totpuf_surfMin', 'doc_surfMax',
@@ -83,7 +86,6 @@ figure1_v2 <- function(path_in, path_out) {
             panel.grid.major = element_line(size = 0.2)) 
   
   }
-  
   
   
   p1 = plotridge(uselakes = c("BM", "TR")); p1

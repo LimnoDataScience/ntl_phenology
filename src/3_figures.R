@@ -8,6 +8,7 @@ tar_option_set(packages = c("lubridate",
                             "ggcorrplot",
                             "corrr",
                             "rstatix",
+                            "ggtext",
                             "TraMineR",
                             # "depmixS4",
                             "seqHMM"))
