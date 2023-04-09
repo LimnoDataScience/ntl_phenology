@@ -44,7 +44,7 @@ zoopDensity <- function(ice_file, strat_file, path_out) {
     
     
   ####### Zoop function to output day of year and weibull #################
-  makeZoop <- function(df, usemetric, max = TRUE, spring = FALSE, usecutoff = 8) {
+  makeZoop <- function(df, usemetric, max = TRUE, spring = FALSE, usecutoff = 6) {
     
     if(spring == TRUE) {
       df = df |> filter(daynum <= 196)

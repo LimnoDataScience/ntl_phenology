@@ -9,29 +9,33 @@
 # the plot is saved as a ".png" file.
 
 figureSI_withinLake <- function(path_in, path_out) {
-  
-  
   vars_order = c("iceoff", "straton", "energy", "schmidt", "stratoff", "iceon",
-                 "drsif_surfMin", "nh4_surfMin", "no3no2_surfMin", 'totpuf_surfMin', 'doc_surfMax',
-                 "minimum_oxygen", "secchi_max", "secchi_springmax")
+                 "drsif_surfMin",  
+                 "totnuf_surfMin",
+                 "totpuf_surfMin", 
+                 "minimum_oxygen", "secchi_max", "zoop_max")
   
-  vars_labels = c("Ice off", "Strat onset", "Energy", "Schdmit", 'Strat offset','Ice on',
-                  'Si surf min', 'NH4 surf min', 'NO3 surf min', 'TP surf min', 'DOC surf max',
-                  'Oxygen min', 'Secchi max', 'Secchi spring max')
+  vars_labels = c("Ice off", "Strat onset", "Energy", "Schmidt", 'Strat offset','Ice on',
+                  "Silica min",  
+                  "TN min",
+                  "TP min", 
+                  'Oxygen min',  'Secchi max', 'Zoop max')
   
-  ################################ Correlation ################################
-  # read in data
-  dat = read_csv(path_in) |> filter(lakeid != 'FI') |> 
+  # Read in data #
+  dat = read_csv(path_in) |> 
+    mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) |> # filter out dates when peak is greater than beginning and end
+    filter(weibull.r2 > 0.7) |> 
+    filter(lakeid != 'FI') |> 
     filter(metric %in% vars_order)
   
+  ################################ Correlation ################################
   # Select data
   lakenames =  c("AL", "BM", "CR", "SP", "TR", "TB", "CB", "ME", "MO", "WI")
   c.plot.list = list()
   coff.df.list = list()
+  
   for (i in 1:length(lakenames)) {
     useVars = dat |> 
-      mutate(dayWeibull = if_else(metric %in% c('iceoff','iceon'), daynum, dayWeibull)) |> 
-      mutate(dayWeibull = if_else(dayWeibull == -999, NA_real_, dayWeibull)) |> 
       filter(lakeid == lakenames[i]) |> 
       filter(!is.na(metric)) |> 
       dplyr::select(year, metric, dayWeibull) |> 
@@ -51,18 +55,46 @@ figureSI_withinLake <- function(path_in, path_out) {
         across(where(na5), ~0) # replace any data with less than 5 measurements with 0
       )
     
-    usecorr <- round(cor(useVars.na,use = "pairwise.complete.obs", method = 'pearson'), 2)
-    # Compute a matrix of correlation p-values
-    p.mat <- cor_pmat(useVars.na) 
-  
-    # Melt
-    usecorr <- reshape2::melt(usecorr, na.rm = FALSE, value.name = 'corr')
-    p.mat <- reshape2::melt(p.mat, na.rm = FALSE, value.name = 'p') |> 
-      rename(Var1 = 1, Var2 = 2)
-    # |> mutate(p = p.adjust(p, method = "holm"))
+    #### corr function that accepts NA values 
+    myCorr <- function(x,y) {
+      my.df <- data.frame(x,y)
+      my.df.cmpl <- my.df[complete.cases(my.df), ]
+      
+      # 3 complete obs is the minimum for cor.test
+      if (nrow(my.df.cmpl)<=2) {
+        return(c(estimate.cor = NA, 
+                 p.value = NA))
+      } else {
+        my.test <- cor.test(my.df.cmpl$x,my.df.cmpl$y)
+        return(c(estimate = round(my.test$estimate,3), 
+                 p.value = round(my.test$p.value,3)))
+      }
+    }
     
-    coff.df = usecorr |> as_tibble() |> 
-      left_join(p.mat) |> 
+    ### Map correlation function to all combinations of metrics 
+    usecorr = expand.grid(v1 = names(useVars.na),      # create combinations of names
+                v2 = names(useVars.na)) %>%
+      as_tibble() %>% 
+      mutate(cor_test = map2(v1, v2, ~myCorr(unlist(useVars.na[,.x]),    # perform the correlation test for each pair and store it
+                                               unlist(useVars.na[,.y]))), 
+             corr = map_dbl(cor_test, "estimate.cor"),   # get the correlation value from the test
+             p = map_dbl(cor_test, "p.value")) |> # get the p value from the test
+      select(-cor_test) 
+    
+    ###############################################################################
+    
+    # usecorr <- round(cor(useVars.na,use = "pairwise.complete.obs", method = 'pearson'), 2)
+    # # Compute a matrix of correlation p-values
+    # p.mat <- cor_pmat(useVars.na) 
+    # 
+    # # Melt
+    # usecorr <- reshape2::melt(usecorr, na.rm = FALSE, value.name = 'corr')
+    # p.mat <- reshape2::melt(p.mat, na.rm = FALSE, value.name = 'p') |> 
+    #   rename(Var1 = 1, Var2 = 2)
+    # # |> mutate(p = p.adjust(p, method = "holm"))
+     
+    
+    coff.df = usecorr |> 
       mutate(corr.p = if_else(p <= 0.01, corr, NA_real_)) |> 
       mutate(lakeid = lakenames[i])
   
@@ -84,30 +116,30 @@ figureSI_withinLake <- function(path_in, path_out) {
   # Bind list
   coff.df = do.call(rbind.data.frame, coff.df.list) |> 
     mutate(lakeid = factor(lakeid, levels = c("AL", "BM", "CR", "SP", "TR", "CB", "TB", "ME", "MO", "WI"))) |> 
-    arrange(Var1) |> 
-    mutate(Var1 =  factor(Var1, levels = vars_order)) |> 
-    mutate(Var2 =  factor(Var2, levels = vars_order)) |> 
+    arrange(v1) |> 
+    mutate(v1 =  factor(v1, levels = vars_order)) |> 
+    mutate(v2 =  factor(v2, levels = vars_order)) |> 
     mutate(lakeid = if_else(!is.na(corr.p), lakeid, as.factor(NA_character_))) |> 
     mutate(lakeid = if_else(corr.p < 1, lakeid, as.factor(NA_character_)))
 
   
-  emptyDF = expand_grid(Var1 = vars_order, Var2 = vars_order) |> 
+  emptyDF = expand_grid(v1 = vars_order, v2 = vars_order) |> 
     mutate(corr = NA, p = NA, corr.p = NA, lakeid = NA) |> 
-    mutate(Var1 = factor(Var1, levels = vars_order)) |> 
-    mutate(Var2 = factor(Var2, levels = vars_order)) 
+    mutate(v1 = factor(v1, levels = vars_order)) |> 
+    mutate(v2 = factor(v2, levels = vars_order)) 
   
   
   plotcor <- function(uselakes, usecolors) {
     
     box1 = 6.5
-    box2 = 11.5
+    box2 = 9.5
     
     coff.df |> filter(lakeid %in% uselakes) |> 
       # need a row with ice on so axes match up in figure 
       bind_rows(emptyDF) |> 
     
     # coff.df |> mutate(if_else(lakeid %in% uselakes, ))  
-    ggplot(mapping = aes(x = Var1, y = Var2, fill = lakeid, color = lakeid)) +
+    ggplot(mapping = aes(x = v1, y = v2, fill = lakeid, color = lakeid)) +
       geom_jitter(shape = 21, size = 2, width = 0.15, height = 0.15, alpha = 0.8, stroke = 0.2) +
       # geom_tile(color = 'gray') +
       scale_fill_manual(values = usecolors, na.translate = F) +

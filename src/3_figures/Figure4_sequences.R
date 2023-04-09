@@ -9,12 +9,11 @@
 figure4 <- function(path_in, path_out, path_out2) {
   #Load data
   dat <-  read_csv(path_in)
-  
+
   df <- dat %>%
-    filter(lakeid != 'FI') |> 
-    mutate(dayWeibull = if_else(metric %in% c('iceoff','iceon'), daynum, dayWeibull)) |> 
-    mutate(weibull.max = if_else(metric %in% c('iceoff','iceon'), TRUE, weibull.max)) |> 
-    mutate(dayWeibull = if_else(dayWeibull == -999, NA_real_, dayWeibull)) |> 
+    filter(!lakeid %in% c('FI', 'WI')) |> 
+    mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) |> # filter out dates when peak is greater than beginning and end
+    filter(weibull.r2 > 0.7) |> 
     mutate(trophic = ifelse(lakeid %in% c('ME', 'MO'), 'eutrophic',
                             ifelse(lakeid %in% c('CB', 'TB'), 'dystrophic', 
                                    ifelse(lakeid %in% c('CR', 'SP'), 'oligotrophic',
@@ -50,6 +49,8 @@ figure4 <- function(path_in, path_out, path_out2) {
              hidden_state = as.factor(year)) %>%
       arrange(hidden_state, time) %>%
       dplyr::select(event, hidden_state)
+    
+    numYears = length(unique(data_HMM$hidden_state))
     
     # data_HMM <- data_HMM[,-1]
     
@@ -87,7 +88,7 @@ figure4 <- function(path_in, path_out, path_out2) {
       theme(axis.title.x = element_blank(),
             axis.text.x = element_text(size = 6),
             plot.title = element_text(size = 8)) +
-      ggtitle(paste0(lakenames,': ',round(mean(om_time),2)))
+      ggtitle(paste0(lakenames,': ',round(mean(om_time),2), ' (n = ', numYears,')'))
     
   }
   
@@ -96,7 +97,8 @@ figure4 <- function(path_in, path_out, path_out2) {
     (sequencePlots[['CR']] +   sequencePlots[['SP']]) /
     (sequencePlots[['CB']] +   sequencePlots[['TB']]) /
     (sequencePlots[['ME']] +   sequencePlots[['MO']]) /
-    (sequencePlots[['AL']] +   sequencePlots[['WI']]) +  plot_layout(guides = 'collect') &
+    (sequencePlots[['AL']] +   plot_spacer()) + #sequencePlots[['WI']]) +  
+    plot_layout(guides = 'collect') &
     theme(legend.position = 'bottom',
           legend.margin=margin(t = 0, unit='cm'),
           legend.key.size = unit(0.3,'cm')) & 

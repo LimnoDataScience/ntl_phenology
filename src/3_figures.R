@@ -13,9 +13,8 @@ tar_option_set(packages = c("lubridate",
                             # "depmixS4",
                             "seqHMM"))
 
-# source("src/3_figures/Figure1_ggridges.R")
 source("src/3_figures/Figure1_ggridges_v2.R")
-source("src/3_figures/Figure2_PEGmodel.R")
+# source("src/3_figures/Figure2_PEGmodel.R")
 source("src/3_figures/Figure3_betweenLake.R")
 source("src/3_figures/Figure4_sequences.R")
 source("src/3_figures/FigureSI_WithinLake.R")
@@ -63,6 +62,11 @@ p3_targets_list <- list(
                 path_out = "Figures_manuscript/FigureSI_tile.png")
   ),
   tar_target(
+    name = figureSI_tile2_png,
+    figureSI_tile2(path_in = combine_final_files_csv,
+                  path_out = "Figures_manuscript/FigureSI_tile2.png")
+  ),
+  tar_target(
     name = figureSI_withinLake_png,
     figureSI_withinLake(path_in = combine_final_files_csv,
             path_out = "Figures_manuscript/FigureSI_withinLake.png")
@@ -70,9 +74,7 @@ p3_targets_list <- list(
   tar_target(
     name = figureSI_MK_png,
     figureSI_MK(path_in = combine_final_files_csv,
-                path_out = "Figures_manuscript/FigureSI_MK.png",
-                vars_order = vars_order2,
-                vars_labels = vars_labels2)
+                path_out = "Figures_manuscript/FigureSI_MK.png")
   )
 
 )

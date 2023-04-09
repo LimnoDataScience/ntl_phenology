@@ -1,6 +1,9 @@
 
 figureSI_tile <- function(path_in, path_out) {
-  dat = read_csv(path_in)
+  dat = read_csv(path_in) |> 
+    mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) # filter out dates when peak is greater than beginning and end
+    
+  
   vars_order = c("iceoff", "straton", "stability", "energy", "schmidt", "stratoff", "iceon",
                  "drsif_surfMin",  "drsif_surfMax", 
                  
@@ -36,8 +39,6 @@ figureSI_tile <- function(path_in, path_out) {
     # filter(sum(!is.na(dayWeibull)) > 5) |> # we need some data!
     # ungroup() |> 
     filter(!is.na(dayWeibull)) |> #filter out actual NAs (not enough data, not to be confused with -999)
-    mutate(dayWeibull = if_else(dayWeibull == -999, NA_real_, dayWeibull)) |> 
-    mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) |> # filter out dates when peak is greater than beginning and end
     group_by(lakeid, metric) |> 
     summarise(n = n(), real = sum(weibull.max == TRUE), per = real/n, r2.mean = mean(weibull.r2, na.rm = T)) |> 
     mutate(lakeid = factor(lakeid, levels = lakes_order)) |> 
@@ -46,21 +47,23 @@ figureSI_tile <- function(path_in, path_out) {
     # mutate(per = real/n) |> 
     mutate(fit = case_when(r2.mean >= 0.9 ~ '0.9 - 1.0',
                            r2.mean >= 0.8 ~ '0.8 - 0.9',
-                           r2.mean < 0.8 ~ '< 0.8')) |> 
-    mutate(fit = factor(fit, levels = c('< 0.8', '0.8 - 0.9', '0.9 - 1.0'))) |> 
+                           r2.mean >= 0.7 ~ '0.7 - 0.8',
+                           r2.mean < 0.7 ~ '< 0.7')) |> 
+    mutate(fit = factor(fit, levels = c('< 0.7', '0.7 - 0.8', '0.8 - 0.9', '0.9 - 1.0'))) |> 
     mutate(perCase = case_when(per >= 0.9 ~ '0.9 - 1.0',
                                per >= 0.8 ~ '0.8 - 0.9',
-                               per < 0.8 ~ '< 0.8')) |> 
-    mutate(perCase = factor(perCase, levels = c('< 0.8', '0.8 - 0.9', '0.9 - 1.0')))
+                               per >= 0.7 ~ '0.7 - 0.8',
+                               per < 0.7 ~ '< 0.7')) |> 
+    mutate(perCase = factor(perCase, levels = c('< 0.7','0.7 - 0.8','0.8 - 0.9', '0.9 - 1.0')))
   
   
   makeTile <- function(usevars) {
     ggplot(test |> filter(metric %in% usevars)) +
       geom_tile(aes(x = lakeid, y = metric, fill = fit), alpha = 0.8, color = NA) +
       geom_tile(data = test |> filter(per >= 0.8, metric %in% usevars), aes(x = lakeid, y = metric), 
-                fill = NA, color = 'black', size = 1) +
+                fill = NA, color = 'black', linewidth = 0.5) +
       geom_text(aes(x = lakeid, y = metric, label = round(r2.mean,2)), size = 2.2) +
-      scale_fill_manual(values = c('#f0a689','#e3c54f','#63ab7f'), 
+      scale_fill_manual(values = c('#f5e3e1','#f0a689','#e3c54f','#63ab7f'), 
                         drop = F, na.translate = F, name = 'Mean r<sup>2</sup>') +
       theme_minimal(base_size = 9) +
       theme(panel.grid.major = element_blank(), 
@@ -68,7 +71,7 @@ figureSI_tile <- function(path_in, path_out) {
             legend.title = element_markdown())
   }
   
-  usevars = c("Ice off", "Strat onset", "Stability", "Energy", "Schmidt", 'Strat offset','Ice on')
+  usevars = c("Ice off", "Strat onset", "Energy", "Schmidt", 'Strat offset','Ice on')
   p1 = makeTile(usevars); p1
   
   usevars = c("drsif_surfMin",  "drsif_surfMax", 
@@ -87,7 +90,7 @@ figureSI_tile <- function(path_in, path_out) {
   p3 = makeTile(usevars)
   
   ################################ Join ################################
-  p1/p2/p3 + plot_layout(heights = c(5, 14, 7), guides = 'collect')
+  p1/p2/p3 + plot_layout(heights = c(4, 14, 7), guides = 'collect')
   
   ggsave(filename = path_out, width = 6, 
          height = 6, dpi = 500)        
@@ -95,7 +98,9 @@ figureSI_tile <- function(path_in, path_out) {
 }
 
 figureSI_tile2 <- function(path_in, path_out) {
-  dat = read_csv(path_in)
+  dat = read_csv(path_in) |> 
+    mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) # filter out dates when peak is greater than beginning and end
+  
   vars_order = c("iceoff", "straton", "stability", "energy", "schmidt", "stratoff", "iceon",
                  "drsif_surfMin",  
                  "totnuf_surfMin",
@@ -119,8 +124,6 @@ figureSI_tile2 <- function(path_in, path_out) {
     # filter(sum(!is.na(dayWeibull)) > 5) |> # we need some data!
     # ungroup() |> 
     filter(!is.na(dayWeibull)) |> #filter out actual NAs (not enough data, not to be confused with -999)
-    mutate(dayWeibull = if_else(dayWeibull == -999, NA_real_, dayWeibull)) |> 
-    mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) |> # filter out dates when peak is greater than beginning and end
     group_by(lakeid, metric) |> 
     summarise(n = n(), real = sum(weibull.max == TRUE), per = real/n, r2.mean = mean(weibull.r2, na.rm = T)) |> 
     mutate(lakeid = factor(lakeid, levels = lakes_order)) |> 
@@ -129,21 +132,23 @@ figureSI_tile2 <- function(path_in, path_out) {
     # mutate(per = real/n) |> 
     mutate(fit = case_when(r2.mean >= 0.9 ~ '0.9 - 1.0',
                            r2.mean >= 0.8 ~ '0.8 - 0.9',
-                           r2.mean < 0.8 ~ '< 0.8')) |> 
-    mutate(fit = factor(fit, levels = c('< 0.8', '0.8 - 0.9', '0.9 - 1.0'))) |> 
+                           r2.mean >= 0.7 ~ '0.7 - 0.8',
+                           r2.mean < 0.7 ~ '< 0.7')) |> 
+    mutate(fit = factor(fit, levels = c('< 0.7', '0.7 - 0.8', '0.8 - 0.9', '0.9 - 1.0'))) |> 
     mutate(perCase = case_when(per >= 0.9 ~ '0.9 - 1.0',
                                per >= 0.8 ~ '0.8 - 0.9',
-                               per < 0.8 ~ '< 0.8')) |> 
-    mutate(perCase = factor(perCase, levels = c('< 0.8', '0.8 - 0.9', '0.9 - 1.0')))
+                               per >= 0.7 ~ '0.7 - 0.8',
+                               per < 0.7 ~ '< 0.7')) |> 
+    mutate(perCase = factor(perCase, levels = c('< 0.7','0.7 - 0.8','0.8 - 0.9', '0.9 - 1.0')))
   
   
   makeTile <- function(usevars) {
     ggplot(test |> filter(metric %in% usevars)) +
       geom_tile(aes(x = lakeid, y = metric, fill = fit), alpha = 0.8, color = NA) +
       geom_tile(data = test |> filter(per >= 0.8, metric %in% usevars), aes(x = lakeid, y = metric), 
-                fill = NA, color = 'black', size = 1) +
+                fill = NA, color = 'black', linewidth = 0.5) +
       geom_text(aes(x = lakeid, y = metric, label = round(r2.mean,2)), size = 2.2) +
-      scale_fill_manual(values = c('#f0a689','#e3c54f','#63ab7f'), 
+      scale_fill_manual(values = c('#f5e3e1','#f0a689','#e3c54f','#63ab7f'), 
                         drop = F, na.translate = F, name = 'Mean r<sup>2</sup>') +
       theme_minimal(base_size = 9) +
       theme(panel.grid.major = element_blank(), 
@@ -151,7 +156,7 @@ figureSI_tile2 <- function(path_in, path_out) {
             legend.title = element_markdown())
   }
   
-  usevars = c("Ice off", "Strat onset", "Stability", "Energy", "Schmidt", 'Strat offset','Ice on')
+  usevars = c("Strat onset", "Energy", "Schmidt", 'Strat offset')
   p1 = makeTile(usevars); p1
   
   usevars = c("Silica min",  
@@ -163,8 +168,8 @@ figureSI_tile2 <- function(path_in, path_out) {
   p3 = makeTile(usevars)
   
   ################################ Join ################################
-  p1/p2/p3 + plot_layout(heights = c(5, 3, 3), guides = 'collect')
+  p1/p2/p3 + plot_layout(heights = c(4, 3, 3), guides = 'collect')
   
-  ggsave(filename = path_out, width = 6, height = 6, dpi = 500)        
+  ggsave(filename = path_out, width = 6, height = 4, dpi = 500)        
   
 }

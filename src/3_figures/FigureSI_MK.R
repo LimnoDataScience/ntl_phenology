@@ -2,11 +2,23 @@ library(tidyverse)
 library(broom)
 library(wql)
 
-figureSI_MK <- function(path_in, path_out, vars_order, vars_labels) {
+figureSI_MK <- function(path_in, path_out) {
+  
+  vars_order = c("iceoff", "straton", "energy", "schmidt", "stratoff", "iceon",
+                 "drsif_surfMin",  
+                 "totnuf_surfMin",
+                 "totpuf_surfMin", 
+                 "minimum_oxygen", "secchi_max", "zoop_max")
+  
+  vars_labels = c("Ice off", "Strat onset", "Energy", "Schmidt", 'Strat offset','Ice on',
+                  "Silica min",  
+                  "TN min",
+                  "TP min", 
+                  'Oxygen min',  'Secchi max', 'Zoop max')
   
   dat = read_csv(path_in) |> filter(lakeid != 'FI') |> 
-    mutate(dayWeibull = if_else(metric %in% c('iceoff','iceon'), daynum, dayWeibull)) |> 
-    mutate(dayWeibull = if_else(dayWeibull == -999, NA_real_, dayWeibull))
+    mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) |> # filter out dates when peak is greater than beginning and end
+    mutate(dayWeibull = if_else(weibull.r2 > 0.7, dayWeibull, NA_real_))
  
   # simple linear trend with Weibull day 
   lm_slopes = dat %>% 
@@ -76,7 +88,7 @@ figureSI_MK <- function(path_in, path_out, vars_order, vars_labels) {
     geom_point(data = . %>% filter(!is.na(sen.slope.daynum)), aes(x=metric, y=lakeid, fill=sen.slope.daynum), shape = 21, size = 2, stroke = 0.2) +
     geom_hline(yintercept = 3.5) +
     geom_vline(xintercept = 6.5) +
-    geom_vline(xintercept = 11.5) +
+    geom_vline(xintercept = 9.5) +
     scale_x_discrete(expand = c(0,0), labels = vars_labels) +
     scale_y_discrete(expand = c(0,0)) +
     theme_bw(base_size = 8) +
@@ -101,6 +113,10 @@ figureSI_MK <- function(path_in, path_out, vars_order, vars_labels) {
     geom_smooth(data = tssig |> filter(!is.na(sen.slope.Weibull)), aes(x=year, y=dayWeibull), method = 'lm', color = 'black') +
     geom_smooth(data = tssig |> filter(!is.na(sen.slope.daynum)), aes(x=year, y=dayWeibull), method = 'lm', color = 'red3')
   
+  
+  # tssig |> filter(metric == 'Oxygen min', lakeid == 'MO') |> 
+  #   ggplot() +
+  #   geom_point(aes(x = year, y = dayWeibull))
   
 }
 

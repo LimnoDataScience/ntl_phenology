@@ -4,22 +4,22 @@ figure2 <- function(path_in, path_out, path_out2) {
   
   # Which spring metrics
   useorder = c("drsif_springSurfMin","zoop_springmax","secchi_springmax")
-  lakeorder = c('BM','TR','CR','SP','CB','TB','ME','MO','AL','WI')
+  useorder = c("drsif_surfMin","zoop_max","secchi_max")
+  
+  # lakeorder = c('BM','TR','CR','SP','CB','TB','ME','MO','AL','WI')
+  # lakenames = data.frame(lakeid = lakeorder,
+  #                        lakenames = c('Big Musky','Trout', 'Crystal', 'Sparkling', 'Crystal Bog','Trout Bog',
+  #                                      'Mendota', 'Monona', 'Allequash', 'Wingra'))
+  lakeorder = c('ME','MO')
   lakenames = data.frame(lakeid = lakeorder,
-                         lakenames = c('Big Musky','Trout', 'Crystal', 'Sparkling', 'Crystal Bog','Trout Bog',
-                                       'Mendota', 'Monona', 'Allequash', 'Wingra'))
-
-  lakeorder = c('ME','MO','WI')
-  lakenames = data.frame(lakeid = lakeorder,
-                         lakenames = c('Mendota', 'Monona', 'Wingra'))
+                         lakenames = c('Mendota', 'Monona'))
   
   # Read in data
   dat = read_csv(path_in) |> 
-    # filter(!(lakeid == 'WI' & year < 2007)) |> 
+    mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) |> # filter out dates when peak is greater than beginning and end
+    filter(weibull.r2 > 0.7) |> 
     filter(lakeid %in% lakeorder) |> 
     filter(metric %in% useorder) |> 
-    mutate(dayWeibull = if_else(metric %in% c('iceoff','iceon'), daynum, dayWeibull)) |> 
-    mutate(dayWeibull = if_else(dayWeibull == -999, NA_real_, dayWeibull)) |> 
     group_by(lakeid, year) %>%
     mutate(missing = if_else(any(is.na(dayWeibull)), TRUE, FALSE)) |>
     ungroup() |> 
@@ -30,9 +30,12 @@ figure2 <- function(path_in, path_out, path_out2) {
     # filter(missing == FALSE) |> 
     group_by(lakeid, year) |> 
     mutate(n = n()) |> filter(n == 3) |> 
-    mutate(order = case_when(metric == 'drsif_springSurfMin' ~ 1,
-                             metric == 'zoop_springmax' ~ 2,
-                             metric == 'secchi_springmax' ~ 3)) |> 
+    # mutate(order = case_when(metric == 'drsif_springSurfMin' ~ 1,
+    #                          metric == 'zoop_springmax' ~ 2,
+    #                          metric == 'secchi_springmax' ~ 3)) |> 
+    mutate(order = case_when(metric == 'drsif_surfMin' ~ 1,
+                             metric == 'zoop_max' ~ 2,
+                             metric == 'secchi_max' ~ 3)) |> 
     arrange(order, .by_group = TRUE) |> 
     mutate(rank = data.table::frank(dayWeibull, ties.method = 'average')) |> 
     mutate(use = case_when(first(rank) == 1 & last(rank) == 3 ~ TRUE,
@@ -50,16 +53,16 @@ figure2 <- function(path_in, path_out, path_out2) {
   # PEG days between silica min and max Secchi
   dat |> dplyr::select(lakeid, year, metric, dayWeibull) |> 
     pivot_wider(names_from = metric, values_from = dayWeibull) |> 
-    mutate(diff = secchi_springmax - drsif_springSurfMin) |> 
+    mutate(diff = secchi_max - drsif_surfMin) |> 
     group_by(lakeid) |> 
     summarise(meandiff = mean(diff, na.rm = T), mediandiff = median(diff, na.rm = T))
   
   # t-test on days 
   stat.out = dat |> 
-    filter(lakeid %in% c('ME','MO','CR','TR','AL')) |> 
+    filter(lakeid %in% c('ME','MO')) |> 
     dplyr::select(lakeid, year, metric, dayWeibull) |> 
     pivot_wider(names_from = metric, values_from = dayWeibull) |> 
-    mutate(diff = secchi_springmax - drsif_springSurfMin) |> 
+    mutate(diff = secchi_max - drsif_surfMin) |> 
     dplyr::select(year, lakeid, diff) |> 
     mutate(lakeid = as.factor(lakeid)) |> 
   pairwise_t_test(

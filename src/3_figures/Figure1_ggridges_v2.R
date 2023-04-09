@@ -4,18 +4,19 @@
 figure1_v2 <- function(path_in, path_out) {
   dat = read_csv(path_in) |> 
     mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) |> # filter out dates when peak is greater than beginning and end
-    mutate(dayWeibull = if_else(metric %in% c('iceoff','iceon'), daynum, dayWeibull)) |> 
-    mutate(weibull.r2 = if_else(metric %in% c('iceoff','iceon'), 1, weibull.r2)) |> 
-    mutate(dayWeibull = if_else(dayWeibull == -999, NA_real_, dayWeibull)) |> 
     filter(weibull.r2 > 0.7)
   
-  vars_order = c("", "iceoff", "straton", "stability", "energy", "schmidt", "stratoff", "iceon",
-                 "drsif_surfMin", "nh4_surfMin", "no3no2_surfMin", 'totpuf_surfMin', 'doc_surfMax',
-                 "minimum_oxygen", "secchi_max", "secchi_springmax", "zoop_max")
+  vars_order = c("iceoff", "straton", "energy", "schmidt", "stratoff", "iceon",
+                 "drsif_surfMin",  
+                 "totnuf_surfMin",
+                 "totpuf_surfMin", 
+                 "minimum_oxygen", "secchi_max", "zoop_max")
   
-  vars_label = c("","Ice off", "Strat onset", "Stability", "Energy", 'Schmidt', 'Strat offset','Ice on',
-                 'Si surf min', 'NH4 surf min', 'NO3 surf min', 'TP surf min', 'DOC surf max',
-                 'Oxygen min', 'Secchi max', 'Secchi spring max', 'Zoop max')
+  vars_labels = c("Ice off", "Strat onset", "Energy", "Schmidt", 'Strat offset','Ice on',
+                  "Silica min",  
+                  "TN min",
+                  "TP min", 
+                  'Oxygen min',  'Secchi max', 'Zoop max')
   
   lakes_order = c("AL", "BM", "CR", "SP","TR", "CB", "TB", "ME", "MO", "WI")
   
@@ -32,7 +33,7 @@ figure1_v2 <- function(path_in, path_out) {
       filter(lakeid %in% uselakes) |> 
       filter(metric %in% vars_order) %>% 
       mutate(lakeid = factor(lakeid, levels = lakes_order),
-             metric = factor(metric, levels = rev(vars_order), labels = rev(vars_label))) %>% 
+             metric = factor(metric, levels = rev(vars_order), labels = rev(vars_labels))) %>% 
       ggplot() + 
       stat_density_ridges(aes(x = as.Date(daynum, origin = as.Date('2019-01-01')), 
                               y= metric, col = metric, fill = metric), 
@@ -42,8 +43,8 @@ figure1_v2 <- function(path_in, path_out) {
                           alpha = 0.5, quantile_lines = T, quantiles = 2, size = 0.3) +
       # scale_fill_manual(values=met.brewer("Archambault", length(vars_order))) + 
       # scale_color_manual(values=met.brewer("Archambault", length(vars_order))) +
-      scale_fill_manual(values = rev(c(rep('#e3d35d',7), rep('#97bab7',5), rep('#bf7058',4)))) +
-      scale_color_manual(values = rev(c(rep('#e3d35d',7), rep('#97bab7',5), rep('#bf7058',4)))) +
+      scale_fill_manual(values = rev(c(rep('#e3d35d',7), rep('#97bab7',3), rep('#bf7058',3)))) +
+      scale_color_manual(values = rev(c(rep('#e3d35d',7), rep('#97bab7',3), rep('#bf7058',3)))) +
       scale_x_date(labels = date_format("%b")) +
       scale_y_discrete(expansion(add = c(0, 2))) +
       facet_wrap(~lakeid, nrow = 1, strip.position = "top") +
@@ -53,7 +54,7 @@ figure1_v2 <- function(path_in, path_out) {
             strip.text = element_text(size=10),
             panel.spacing.y = unit(0.4,"lines"),
             strip.background = element_blank(),
-            panel.grid.major = element_line(size = 0.2)) +
+            panel.grid.major = element_line(linewidth = 0.2)) +
       guides(fill="none", color="none")
   }
   
@@ -66,7 +67,7 @@ figure1_v2 <- function(path_in, path_out) {
     
     dat.iqr |> full_join(empty_metric) |>   
     mutate(lakeid = factor(lakeid, levels = lakes_order),
-           metric = factor(metric, levels = rev(vars_order), labels = rev(vars_label))) |> 
+           metric = factor(metric, levels = rev(vars_order), labels = rev(vars_labels))) |> 
       filter(lakeid %in% uselakes) |> 
   
     ggplot() + 
