@@ -31,7 +31,6 @@ secchi <- function(ice_file, strat_file, path_out) {
     filter(metric == 'stratoff') |> 
     select(lakeid, year4 = year, stratoff = daynum)
   
-
   secchi = LTERsecchi |> select(lakeid:sampledate, secnview, ice) |> 
     filter(!is.na(secnview)) |> 
     left_join(iceOff) |> 
@@ -66,11 +65,11 @@ secchi <- function(ice_file, strat_file, path_out) {
     
     output = dayMax |> left_join(weibullMax) |> 
       mutate(metric = usemetric) |> 
-      select(lakeid, metric, sampledate, year, daynum, secnview, dayWeibull, weibull.r2, weibull.max)
+      select(lakeid, metric, sampledate, year, daynum, secnview, dayWeibull, weibull.r2, weibull.max, weibull.adjust)
     return(output)
   }
   
-  o1 = makeSecchi(secchi, 'secchi_max', max = TRUE, spring = FALSE) # secchi max
+  o1 = makeSecchi(df = secchi, usemetric = 'secchi_max', max = TRUE, spring = FALSE) # secchi max
   o2 = makeSecchi(secchi, 'secchi_min', max = FALSE, spring = FALSE) # secchi min
   o3 = makeSecchi(secchi, 'secchi_springmax', max = TRUE, spring = TRUE, usecutoff = 5) # spring secchi min
   

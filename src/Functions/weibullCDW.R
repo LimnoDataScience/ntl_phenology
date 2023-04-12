@@ -21,7 +21,8 @@ weibullCDW <- function(p, quantile = 0.05) {
     
     fzero <- function(x, q, p, x0=0) {
       q - aweibull(lower=x0, upper=x, p)
-    }                                                                
+    }
+    
     opt <- optimize(f = fweibull, p = c(p, 0), lower = xmin, upper = xmax, maximum=TRUE)
     tMid <- opt$maximum
     ymax <- fweibull(tMid, p)

@@ -117,7 +117,7 @@ nutrients <- function(ice_file, path_out) {
     output = dayMax |> left_join(weibullMax) |> 
       ungroup() |> 
       mutate(metric = paste0(item, '_', usemetric)) |> 
-      select(lakeid, metric, sampledate, year, daynum, dayWeibull, weibull.r2, weibull.max)
+      select(lakeid, metric, sampledate, year, daynum, dayWeibull, weibull.r2, weibull.max, weibull.adjust)
     return(output)
   }
   
@@ -130,7 +130,7 @@ nutrients <- function(ice_file, path_out) {
   
   ####### Join datasets ###### ###### ###### ###### ###### ######
   comb = bind_rows(o1, o2, o3, o4, o5) |> 
-    select(lakeid, metric, sampledate, year, daynum, dayWeibull, weibull.r2, weibull.max) # set order 
+    select(lakeid, metric, sampledate, year, daynum, dayWeibull, weibull.r2, weibull.max, weibull.adjust) # set order 
   
   write_csv(comb, file = path_out)
   

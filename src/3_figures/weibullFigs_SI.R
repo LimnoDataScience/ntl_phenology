@@ -5,7 +5,6 @@ library(patchwork)
 library(scales)
 source('src/Functions/weibullCDW.R')
 
-
 #################### LOAD SECCHI DATA ####################
 lakes_order = c("AL", "BM", "CR", "SP","TR", "CB", "TB", "ME", "MO", "WI")
 
@@ -66,7 +65,7 @@ plotWeibull <- function(df, r2size = 3) {
   ## identify cardinal dates from fitted curves
   smd <- weibullCDW(res, quantile=0.05)
   smd.out = data.frame(x = smd[[1]], y = smd[[2]]* res$ymax)
-
+  
   ## is smd Begin > smd End?
   weibull.max = smd$y[1] > smd$y[2] & smd$y[1] > smd$y[3] 
   
@@ -88,66 +87,49 @@ plotWeibull <- function(df, r2size = 3) {
   
   # Plotting
   p1 = ggplot(df) +
-    geom_vline(data = secchi.max, aes(xintercept = as.Date(daynum, origin = as.Date('2020-01-01'))), linetype = 2) +
-    geom_point(aes(x = as.Date(daynum, origin = as.Date('2020-01-01')), y = secnview)) +
+    geom_vline(data = secchi.max, aes(xintercept = as.Date(daynum, origin = as.Date('2020-01-01'))), linetype = 2, linewidth = 0.4) +
+    geom_point(aes(x = as.Date(daynum, origin = as.Date('2020-01-01')), y = secnview), size = 0.8) +
     geom_path(data = fit, aes(x = as.Date(x, origin = as.Date('2020-01-01')), y = newy), color = 'lightblue3') +
     geom_point(data = smd.out, aes(x = as.Date(x, origin = as.Date('2020-01-01')), y = y), 
-               fill = 'lightblue3', shape = 21, stroke = 0.2, size = 3) +
+               fill = 'lightblue3', shape = 21, stroke = 0.2, size = 2) +
     annotate(geom = 'text', x = as.Date(5, origin = as.Date('2020-01-01')), y = Inf, 
              label = paste0('r^2 == ', round(res$r2, 2)), hjust = 0, vjust = 2, parse = TRUE, color = 'lightblue4', size = r2size) +
     ylab('Secchi (m)') + 
-
+    
     scale_x_date(labels = date_format("%b"), breaks = 'month') +
     theme_bw(base_size = 9) +
     theme(axis.title.x = element_blank(),plot.title = element_text(size = 9))
   
   if(weibull.max == FALSE){
     p1 = p1 + 
-      geom_point(data = df2[1,], aes(x = as.Date(daynum, origin = as.Date('2020-01-01')), y = secnview), color = 'salmon4') +
+      geom_point(data = df2[1,], aes(x = as.Date(daynum, origin = as.Date('2020-01-01')), y = secnview), size = 0.8, color = 'salmon1') +
       geom_path(data = fit2, aes(x = as.Date(x, origin = as.Date('2020-01-01')), y = newy), color = 'salmon1') +
       geom_point(data = smd2.out, aes(x = as.Date(x, origin = as.Date('2020-01-01')), y = y), 
-                 fill = 'salmon1', shape = 21, stroke = 0.2, size = 3) +
+                 fill = 'salmon1', shape = 21, stroke = 0.2, size = 2) +
       annotate(geom = 'text', x = as.Date(5, origin = as.Date('2020-01-01')), y = Inf, 
-               label = paste0('r^2 == ', round(res2$r2, 2)), hjust = 0, vjust = 4, parse = TRUE, color = 'salmon1', size = r2size)
+               label = paste0('r^2 == ', round(res2$r2, 2)), hjust = 0, vjust = 3, parse = TRUE, color = 'salmon1', size = r2size)
   }
   
   return(p1)
-
+  
 }
 
-
-plotWeibull(secchi |> filter(lakeid == 'CB', year == 1998)) + labs(title = 'Crystal Lake, 1984')
-plotWeibull(secchi |> filter(lakeid == 'BM', year == 1986))
-plotWeibull(df)
-
-plotWeibull(secchi |> filter(lakeid == 'BM', year == 1998))
-df2 = secchi |> filter(lakeid == 'BM', year == 2003) 
-df2 = df2[1,] |> bind_rows(df2)
-df2$daynum[1] = df2$daynum[1] - 30
-df2$secnview[1] = min(df2$secnview)
-plotWeibull(df2)
-
-plotWeibull(secchi |> filter(lakeid == 'BM', year == 1999))
-plotWeibull(secchi |> filter(lakeid == 'BM', year == 2003))
-plotWeibull(secchi |> filter(lakeid == 'BM', year == 2011))
-plotWeibull(secchi |> filter(lakeid == 'BM', year == 2015))
-plotWeibull(secchi |> filter(lakeid == 'BM', year == 2018))
-
-
-## Exmaple figures for manuscript 
-p1 = plotWeibull(secchi |> filter(lakeid == 'ME', year == 2012)) + labs(title = 'Lake Mendota, 2012')
-p2 = plotWeibull(secchi |> filter(lakeid == 'TB', year == 2019)) + labs(title = 'Trout Bog, 2019')
-p3 = plotWeibull(secchi |> filter(lakeid == 'CR', year == 1984)) + labs(title = 'Crystal Lake, 1984')
-
-# patchwork
-p1/p3/p2 + #plot_layout()
-  plot_annotation(tag_levels = 'a', tag_suffix = ')', 
-                  caption = 'Figure X. Weibull distributions (blue line) fit to observed Secchi 
-depths in three lake-years. The blue dots represent the start, maximum, and end 
-points of a theoretical clear-water phase. r2 values are given for each Weibull fit.
-Dashed vertical lines indicate the day of year of maximum observed secchi depth.',
-                  theme = theme(plot.caption = element_text(hjust = 0))) 
-
-ggsave('Figures_manuscript/FigureSI_weibull.png', width = 6, height = 6, dpi = 500)
-
-
+############ ALL lakes Secchi ##############
+for (j in 1:length(lakes_order)) {
+  df.plots = list()
+  useyears = unique(secchi |> filter(lakeid == lakes_order[j]) |> pull(year))
+  for (i in 1:length(useyears)) {
+    df = secchi |> filter(lakeid == lakes_order[j], year == useyears[i])
+    
+    if (nrow(df) > 0) {
+      df.plots[[i]] = plotWeibull(secchi |> filter(lakeid == lakes_order[j], year == useyears[i]), r2size = 2) + 
+        labs(title = paste0(lakes_order[j],': ',useyears[i])) +
+        scale_x_date(labels = date_format("%b"), breaks = '4 month', minor_breaks = '1 month') +
+        theme_bw(base_size = 7) +
+        theme(axis.title.x = element_blank(), 
+              plot.title = element_text(size = 7))
+    }
+  }
+  patchwork::wrap_plots(df.plots)
+  ggsave(paste0('Figures_manuscript/Weibull_Secchi/',lakes_order[j],'_Secchi.png'), width = 6, height = 9, dpi = 500)
+}
