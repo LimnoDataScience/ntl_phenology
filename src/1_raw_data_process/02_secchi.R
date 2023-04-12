@@ -41,7 +41,7 @@ secchi <- function(ice_file, strat_file, path_out) {
     filter(daynum < firstice) |>  # using daynum because ice-on can switch years
     group_by(lakeid, year4) |> 
     mutate(n = n()) |> 
-    filter(!n < 10) |> # filter out low year
+    filter(!n < 8) |> # filter out low year
     ungroup() |> select(-n) |> 
     rename(year = year4)
   
