@@ -6,7 +6,8 @@
 library(targets)
 
 options(tidyverse.quiet = TRUE)
-options(clustermq.scheduler = "multicore")
+# options(clustermq.scheduler = "multicore")
+options(clustermq.scheduler = "multiprocess")
 
 packages <- c('tidyverse', 
               'lubridate', 

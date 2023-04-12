@@ -96,9 +96,9 @@ plotWeibull <- function(df, r2size = 3) {
              label = paste0('r^2 == ', round(res$r2, 2)), hjust = 0, vjust = 2, parse = TRUE, color = 'lightblue4', size = r2size) +
     ylab('Secchi (m)') + 
     
-    scale_x_date(labels = date_format("%b"), breaks = 'month') +
-    theme_bw(base_size = 9) +
-    theme(axis.title.x = element_blank(),plot.title = element_text(size = 9))
+    scale_x_date(labels = date_format("%b"), breaks = '4 month', minor_breaks = '1 month') +
+    theme_bw(base_size = 7) +
+    theme(axis.title.x = element_blank(),plot.title = element_text(size = 7))
   
   if(weibull.max == FALSE){
     p1 = p1 + 
@@ -123,11 +123,7 @@ for (j in 1:length(lakes_order)) {
     
     if (nrow(df) > 0) {
       df.plots[[i]] = plotWeibull(secchi |> filter(lakeid == lakes_order[j], year == useyears[i]), r2size = 2) + 
-        labs(title = paste0(lakes_order[j],': ',useyears[i])) +
-        scale_x_date(labels = date_format("%b"), breaks = '4 month', minor_breaks = '1 month') +
-        theme_bw(base_size = 7) +
-        theme(axis.title.x = element_blank(), 
-              plot.title = element_text(size = 7))
+        labs(title = paste0(lakes_order[j],': ',useyears[i])) 
     }
   }
   patchwork::wrap_plots(df.plots)
