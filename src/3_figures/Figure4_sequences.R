@@ -11,7 +11,7 @@ figure4 <- function(path_in, path_out, path_out2) {
   dat <-  read_csv(path_in)
 
   df <- dat %>%
-    filter(!lakeid %in% c('FI', 'WI')) |> 
+    filter(!lakeid %in% c('FI')) |> 
     mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) |> # filter out dates when peak is greater than beginning and end
     filter(weibull.r2 > 0.7) |> 
     mutate(trophic = ifelse(lakeid %in% c('ME', 'MO'), 'eutrophic',
@@ -39,7 +39,8 @@ figure4 <- function(path_in, path_out, path_out2) {
       df_red %>%
       filter(lakeid == lakenames) %>%
       group_by(year) |> 
-      na.omit() |> filter(n() == 7) |> ungroup() |>  # Need to have all 7 metrics each year
+      # na.omit() |> 
+      filter(n() == 7) |> ungroup() |>  # Need to have all 7 metrics each year
       mutate(year_norm = year - min(year),
              time_norm = dayWeibull + year_norm * 365) %>%
       rename(event = metric,
@@ -97,7 +98,7 @@ figure4 <- function(path_in, path_out, path_out2) {
     (sequencePlots[['CR']] +   sequencePlots[['SP']]) /
     (sequencePlots[['CB']] +   sequencePlots[['TB']]) /
     (sequencePlots[['ME']] +   sequencePlots[['MO']]) /
-    (sequencePlots[['AL']] +   plot_spacer()) + #sequencePlots[['WI']]) +  
+    (sequencePlots[['AL']] +   sequencePlots[['WI']]) +  #plot_spacer()) + #
     plot_layout(guides = 'collect') &
     theme(legend.position = 'bottom',
           legend.margin=margin(t = 0, unit='cm'),

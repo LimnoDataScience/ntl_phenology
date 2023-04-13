@@ -14,8 +14,10 @@ p2_targets_list <- list(
                            'no3no2_surfMin', 'no3no2_surfMax',
                            'drp_surfMin','drp_surfMax',
                            'doc_surfMin','doc_surfMax', 
+                           "ph_surfMin","ph_surfMax",
                            "minimum_oxygen", "secchi_max", "secchi_min", "zoop_max",
-                           "drsif_springSurfMin","zoop_springmax","secchi_springmax")),
+                           # "drsif_springSurfMin",
+                           "zoop_springmax","secchi_springmax")),
   tar_target(
     name = combine_final_files_csv,
     combine_final_files(

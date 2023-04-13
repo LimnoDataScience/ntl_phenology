@@ -1,5 +1,5 @@
 
-nutrients <- function(ice_file, path_out) {
+nutrients <- function(ice_file, strat_file, path_out) {
   # Updated 2023-03-10 Hilary Dugan
   # varsWant = c("doc_surfMax", "totpuf_surfMin", #"totpuf_surfMax", 
   #              "totpuf_botMax", #"totpuf_botMin", 
@@ -57,9 +57,13 @@ nutrients <- function(ice_file, path_out) {
     filter(!is.na(value))
 
   # get ice on/off dates
-  ice0 = read_csv(ice_file) |> 
+  iceOff = read_csv(ice_file) |> 
     filter(metric == 'iceoff') |> 
     dplyr::select(lakeid, year4 = year, lastice = sampledate)
+  
+  stratOff = read_csv(strat_file) |> 
+    filter(metric == 'stratoff') |> 
+    select(lakeid, year4 = year, stratoff = daynum)
   
   # Which depths to use? 
   maxDepths = lternuts.flagged |> 
@@ -88,8 +92,10 @@ nutrients <- function(ice_file, path_out) {
   #################### MANIPULATE DATA ####################
   # restrict to surf/bot and stratification period and choose variables of interest
   nuts = surfNuts %>% bind_rows(botNuts) |> 
-    left_join(ice0) |> 
-    filter(sampledate > lastice) |> 
+    left_join(iceOff) |> 
+    filter(sampledate > lastice) |> # filter dates after ice off
+    left_join(stratOff) |> 
+    filter(daynum < stratoff) |>  # filter dates before fall mixing
     rename(year = year4) |> 
     filter(item %in% c('drsif', 'ph', 'doc', 'totnuf', 'totpuf', 'drp', 'nh4', 'no3no2'))
     
@@ -122,14 +128,14 @@ nutrients <- function(ice_file, path_out) {
   }
   
   o1 = makeNuts(nuts, uselayer = 'surf', usemetric = 'surfMax', max = TRUE, spring = FALSE) # secchi max
-  o2 = makeNuts(nuts, uselayer = 'bot', usemetric = 'botMax', max = TRUE, spring = FALSE) # secchi max
+  # o2 = makeNuts(nuts, uselayer = 'bot', usemetric = 'botMax', max = TRUE, spring = FALSE) # secchi max
   o3 = makeNuts(nuts, uselayer = 'surf', usemetric = 'surfMin', max = FALSE, spring = FALSE) # secchi max
-  o4 = makeNuts(nuts, uselayer = 'bot', usemetric = 'botMin', max = FALSE, spring = FALSE) # secchi max
-  o5 = makeNuts(nuts |> filter(item %in% c('drsif')), uselayer = 'surf', usemetric = 'springSurfMin', max = FALSE, spring = TRUE, usecutoff = 5) # secchi max
+  # o4 = makeNuts(nuts, uselayer = 'bot', usemetric = 'botMin', max = FALSE, spring = FALSE) # secchi max
+  # o5 = makeNuts(nuts |> filter(item %in% c('drsif')), uselayer = 'surf', usemetric = 'springSurfMin', max = FALSE, spring = TRUE, usecutoff = 5) # secchi max
   
   
   ####### Join datasets ###### ###### ###### ###### ###### ######
-  comb = bind_rows(o1, o2, o3, o4, o5) |> 
+  comb = bind_rows(o1, o3) |> 
     select(lakeid, metric, sampledate, year, daynum, dayWeibull, weibull.r2, weibull.max, weibull.adjust) # set order 
   
   write_csv(comb, file = path_out)
