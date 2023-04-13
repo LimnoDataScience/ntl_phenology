@@ -100,8 +100,14 @@ nuts = surfNuts %>% bind_rows(botNuts) |>
   filter(item %in% c('drsif', 'no3no2', 'ph', 'doc', 'totnf', 'totnuf', 'topf', 'totpuf', 'drp', 'nh4', 'no3no2'))
 
 
-plotWeibull <- function(df, r2size = 3) {
+
+plotWeibull <- function(df, find = 'max', r2size = 3) {
   # fit weibull, estimate new fit for plotting
+  
+  if (find == 'min') {
+    df$value = df$value * -1 + max(df$value, na.rm = T)
+  }
+  
   res <- fitweibull6(df$daynum, df$value)
   fit <- res$fit |> 
     mutate(newy = fweibull6(x, res$p) * res$ymax)
@@ -142,8 +148,7 @@ plotWeibull <- function(df, r2size = 3) {
     geom_point(data = smd.out, aes(x = as.Date(x, origin = as.Date('2020-01-01')), y = y), 
                fill = 'lightblue3', shape = 21, stroke = 0.2, size = 2) +
     annotate(geom = 'text', x = as.Date(5, origin = as.Date('2020-01-01')), y = Inf, 
-             label = paste0('r^2 == ', round(res$r2, 2)), hjust = 0, vjust = 2, parse = TRUE, color = 'lightblue4', size = r2size)  
-    
+             label = paste0('r^2 == ', round(res$r2, 2)), hjust = 0, vjust = 2, parse = TRUE, color = 'lightblue4', size = r2size) + 
     scale_x_date(labels = date_format("%b"), breaks = '4 month', minor_breaks = '1 month') +
     theme_bw(base_size = 7) +
     theme(axis.title.x = element_blank(),plot.title = element_text(size = 7))
@@ -163,7 +168,31 @@ plotWeibull <- function(df, r2size = 3) {
 }
 
 ############ ALL lakes Nutrients - Surface ##############
-vars = c('drsif', 'no3no2', 'ph', 'doc', 'totnf', 'totnuf', 'topf', 'totpuf', 'drp', 'nh4', 'no3no2')
+vars = c('drsif', 'ph', 'doc',  'totnuf', 'totpuf', 'drp', 'nh4', 'no3no2')
+
+for (k in 6:length(vars)) {
+  nuts.vars = nuts |> filter(item == vars[k]) |> filter(layer == 'surf')
+  
+  for (j in 1:length(lakes_order)) {
+    df.plots = list()
+    useyears = unique(nuts.vars |> filter(lakeid == lakes_order[j]) |> pull(year))
+    
+    if(length(useyears) == 0) {next}
+    for (i in 1:length(useyears)) {
+      df = nuts.vars |> filter(lakeid == lakes_order[j], year == useyears[i])
+      
+      if (nrow(df) > 0 & sum(df$value > 0)) {
+        df.plots[[i]] = plotWeibull(nuts.vars |> filter(lakeid == lakes_order[j], year == useyears[i]), find = 'max', r2size = 2) + 
+          labs(title = paste0(lakes_order[j],': ',useyears[i])) +
+          ylab(vars[k])
+      } else {
+        df.plots[[i]] = ggplot() + theme_void()
+      }
+    }
+    patchwork::wrap_plots(df.plots)
+    ggsave(paste0('Figures_manuscript/Weibull_Nutrients_Surf/',vars[k],'_max_',lakes_order[j],'.png'), width = 6, height = 9, dpi = 500)
+  }
+}
 
 for (k in 1:length(vars)) {
   nuts.vars = nuts |> filter(item == vars[k]) |> filter(layer == 'surf')
@@ -172,16 +201,20 @@ for (k in 1:length(vars)) {
     df.plots = list()
     useyears = unique(nuts.vars |> filter(lakeid == lakes_order[j]) |> pull(year))
     
+    if(length(useyears) == 0) {next}
     for (i in 1:length(useyears)) {
       df = nuts.vars |> filter(lakeid == lakes_order[j], year == useyears[i])
       
-      if (nrow(df) > 0) {
-        df.plots[[i]] = plotWeibull(nuts.vars |> filter(lakeid == lakes_order[j], year == useyears[i]), r2size = 2) + 
+      if (nrow(df) > 0 & sum(df$value > 0)) {
+        df.plots[[i]] = plotWeibull(nuts.vars |> filter(lakeid == lakes_order[j], year == useyears[i]), find = 'min', r2size = 2) + 
           labs(title = paste0(lakes_order[j],': ',useyears[i])) +
           ylab(vars[k])
+      } else {
+        df.plots[[i]] = ggplot() + theme_void()
       }
     }
     patchwork::wrap_plots(df.plots)
-    ggsave(paste0('Figures_manuscript/Weibull_Nutrients_Surf/',lakes_order[j],'_',vars[k],'_max.png'), width = 6, height = 9, dpi = 500)
+    ggsave(paste0('Figures_manuscript/Weibull_Nutrients_Surf/',vars[k],'_min_',lakes_order[j],'.png'), width = 6, height = 9, dpi = 500)
   }
 }
+

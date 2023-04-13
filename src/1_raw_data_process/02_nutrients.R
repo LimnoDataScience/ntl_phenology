@@ -91,7 +91,7 @@ nutrients <- function(ice_file, path_out) {
     left_join(ice0) |> 
     filter(sampledate > lastice) |> 
     rename(year = year4) |> 
-    filter(item %in% c('drsif', 'no3no2', 'ph', 'doc', 'totnf', 'totnuf', 'topf', 'totpuf', 'drp', 'nh4', 'no3no2'))
+    filter(item %in% c('drsif', 'ph', 'doc', 'totnuf', 'totpuf', 'drp', 'nh4', 'no3no2'))
     
   ####### Nutrient function to output day of year and weibull #################
   makeNuts <- function(df, uselayer, usemetric, max = TRUE, spring = FALSE, usecutoff = 8) {

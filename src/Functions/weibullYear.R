@@ -57,12 +57,12 @@ weibull.year <- function(df, var, find = 'max', cardinal = 'mid', datacutoff = 8
       usedata = usedata[1,] |> bind_rows(usedata)
       usedata$daynum[1] = usedata$daynum[1] - 30
       
-      if (find == 'min') {
-        usedata[,var] = usedata[,var] * -1 + max(usedata[,var], na.rm = T)
-        usedata[,var][1,] = max(usedata[,var])
-      } else {
+      # if (find == 'min') {
+      #   usedata[,var] = usedata[,var] * -1 + max(usedata[,var], na.rm = T)
+      #   usedata[,var][1,] = max(usedata[,var])
+      # } else {
         usedata[,var][1,] = min(usedata[,var])
-      }
+      # }
       res <- fitweibull6(usedata$daynum, pull(usedata[,var]))
       smd = weibullCDW(res, quantile = 0.05)
       

@@ -127,5 +127,5 @@ for (j in 1:length(lakes_order)) {
     }
   }
   patchwork::wrap_plots(df.plots)
-  ggsave(paste0('Figures_manuscript/Weibull_Secchi/',lakes_order[j],'_Secchi.png'), width = 6, height = 9, dpi = 500)
+  ggsave(paste0('Figures_manuscript/Weibull_Secchi/','Secchi_max_',lakes_order[j],'.png'), width = 6, height = 9, dpi = 500)
 }
