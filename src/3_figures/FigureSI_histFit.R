@@ -1,7 +1,7 @@
 
 
 vars_order = c("iceoff", "straton", "stability", "energy", "schmidt", "stratoff", "iceon",
-               "drsif_surfMin",  
+               "drsif_springSurfMin",  
                "totnuf_surfMin",
                "totpuf_surfMin", 
                "minimum_oxygen", "secchi_max", "zoop_max")

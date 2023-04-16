@@ -7,7 +7,7 @@ figure1_v2 <- function(path_in, path_out) {
     filter(weibull.r2 > 0.7)
   
   vars_order = c("iceoff", "straton", "energy", "schmidt", "stratoff", "iceon",
-                 "drsif_surfMin",  
+                 "drsif_springSurfMin", 
                  "totnuf_surfMin",
                  "totpuf_surfMin", 
                  "minimum_oxygen", "secchi_max", "zoop_max")
@@ -72,7 +72,7 @@ figure1_v2 <- function(path_in, path_out) {
   
     ggplot() + 
       geom_vline(aes(xintercept = 28), linetype = 2) +
-      geom_jitter(aes(y = metric, x = day.IQR, fill = metric), shape = 21, size = 1.5, width = 0.2, height = 0, stroke = 0.2) +
+      geom_jitter(aes(y = metric, x = day.IQR, fill = metric), shape = 21, linewidth = 1.5, width = 0.2, height = 0, stroke = 0.2) +
       xlab('IQR (days)') +
       scale_fill_manual(values = rev(c(rep('#e3d35d',8), rep('#97bab7',5), rep('#bf7058',4)))) +
       # scale_fill_manual(values=met.brewer("Archambault", length(vars_order))) + 
@@ -84,7 +84,7 @@ figure1_v2 <- function(path_in, path_out) {
             legend.position = 'none',
             legend.key.height = unit(0.3,'cm'),
             legend.title = element_blank(),
-            panel.grid.major = element_line(size = 0.2)) 
+            panel.grid.major = element_line(linewidth = 0.2)) 
   
   }
   

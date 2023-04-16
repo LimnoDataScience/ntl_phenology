@@ -1,11 +1,7 @@
 
 nutrients <- function(ice_file, strat_file, path_out) {
-  # Updated 2023-03-10 Hilary Dugan
-  # varsWant = c("doc_surfMax", "totpuf_surfMin", #"totpuf_surfMax", 
-  #              "totpuf_botMax", #"totpuf_botMin", 
-  #              "drsif_surfMin", "drsif_surfSpringMin",
-  #              "totnuf_surfMin", "totnuf_botMax")
-  
+  # Updated 2023-04-13 Hilary Dugan
+
   #################### FUNCTIONS ####################
   # filtering function - turns outliers into NAs to be removed
   filter_lims <- function(x){
@@ -33,6 +29,9 @@ nutrients <- function(ice_file, strat_file, path_out) {
   
   # removed flagged data
   lternuts.flagged = LTERnutrients %>%
+    mutate(totn_sloh = kjdl_n_sloh + no3no2_sloh) |> # Southern lakes don't have totN pre 2015. Add Kjeldahl and nitrate 
+    mutate(totnuf_sloh = if_else(is.na(totnuf_sloh), totn_sloh, totnuf_sloh)) |> 
+    select(-totn_sloh) |> 
     mutate(across(everything(), ~replace(., .<0 , NA))) %>%
     rename_all( ~ str_replace(., "_sloh", '.sloh')) %>%
     rename_all( ~ str_replace(., "_n", '.n')) %>%
@@ -73,13 +72,13 @@ nutrients <- function(ice_file, strat_file, path_out) {
     filter(depth == max(depth)) |> 
     rename(maxDepth = depth)
   
-  # Limit to surface or bottom and exclude years with < 8 measurements in that year
+  # Limit to surface or bottom and exclude years with < 6 measurements in that year
   surfNuts = lternuts.flagged |> filter(depth <= 1) |> 
     group_by(lakeid, year4, daynum, sampledate, item) |> 
     summarise(value = mean(value, na.rm = T)) |> 
     mutate(layer = 'surf') |> 
     group_by(lakeid, year4, item) |> 
-    filter(n() >= 8)
+    filter(n() >= 6)
     
   botNuts = lternuts.flagged |> left_join(maxDepths) |> 
     dplyr::filter(depth == maxDepth) |> 
@@ -87,25 +86,34 @@ nutrients <- function(ice_file, strat_file, path_out) {
     summarise(value = mean(value, na.rm = T)) |> 
     mutate(layer = 'bot') |> 
     group_by(lakeid, year4, item) |> 
-    filter(n() >= 8)
+    filter(n() >= 6)
   
   #################### MANIPULATE DATA ####################
   # restrict to surf/bot and stratification period and choose variables of interest
   nuts = surfNuts %>% bind_rows(botNuts) |> 
     left_join(iceOff) |> 
     filter(sampledate > lastice) |> # filter dates after ice off
-    left_join(stratOff) |> 
-    filter(daynum < stratoff) |>  # filter dates before fall mixing
+    # left_join(stratOff) |> 
+    # filter(daynum < stratoff) |>  # filter dates before fall mixing
     rename(year = year4) |> 
-    filter(item %in% c('drsif', 'ph', 'doc', 'totnuf', 'totpuf', 'drp', 'nh4', 'no3no2'))
-    
+    filter(item %in% c('drsif', 'ph', 'doc','totnf', 'totnuf', 'totpf', 'totpuf', 'drp', 'nh4', 'no3no2'))
+  
+  # nuts |> filter(item %in% c('totnf','totnuf'), layer == 'surf') |> select(lakeid, year, sampledate, item, value) |> 
+  #   pivot_wider(names_from = item, values_from = value) |> 
+  #   ggplot() +
+  #   geom_point(aes(x = totnf, y = totnuf)) +
+  #   facet_wrap(~lakeid, scales = 'free') +
+  #   geom_abline()
+  
+  write_csv(nuts, 'Data/derived/nutrients.csv')
+  
   ####### Nutrient function to output day of year and weibull #################
-  makeNuts <- function(df, uselayer, usemetric, max = TRUE, spring = FALSE, usecutoff = 8) {
+  makeNuts <- function(df, uselayer, usemetric, max = TRUE, spring = FALSE, usecutoff = 6) {
     
     df = df |> filter(layer == uselayer)
     
     if(spring == TRUE) {
-      df = df |> filter(yday(sampledate) <= 196)
+      df = df |> filter(yday(sampledate) <= 274)
     }
     
     df = df |> group_by(lakeid, year, item)
@@ -127,15 +135,15 @@ nutrients <- function(ice_file, strat_file, path_out) {
     return(output)
   }
   
-  o1 = makeNuts(nuts, uselayer = 'surf', usemetric = 'surfMax', max = TRUE, spring = FALSE) # secchi max
+  o1 = makeNuts(nuts |> filter(item %in% c('doc','ph')), uselayer = 'surf', usemetric = 'surfMax', max = TRUE, spring = FALSE) # secchi max
   # o2 = makeNuts(nuts, uselayer = 'bot', usemetric = 'botMax', max = TRUE, spring = FALSE) # secchi max
   o3 = makeNuts(nuts, uselayer = 'surf', usemetric = 'surfMin', max = FALSE, spring = FALSE) # secchi max
   # o4 = makeNuts(nuts, uselayer = 'bot', usemetric = 'botMin', max = FALSE, spring = FALSE) # secchi max
-  # o5 = makeNuts(nuts |> filter(item %in% c('drsif')), uselayer = 'surf', usemetric = 'springSurfMin', max = FALSE, spring = TRUE, usecutoff = 5) # secchi max
+  o5 = makeNuts(nuts |> filter(item %in% c('drsif')), uselayer = 'surf', usemetric = 'springSurfMin', max = FALSE, spring = TRUE, usecutoff = 5) # secchi max
   
   
   ####### Join datasets ###### ###### ###### ###### ###### ######
-  comb = bind_rows(o1, o3) |> 
+  comb = bind_rows(o1, o3, o5) |> 
     select(lakeid, metric, sampledate, year, daynum, dayWeibull, weibull.r2, weibull.max, weibull.adjust) # set order 
   
   write_csv(comb, file = path_out)

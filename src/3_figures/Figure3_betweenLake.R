@@ -11,7 +11,7 @@ figure3 <- function(path_in, path_out, path_out2) {
   lakes_order = c("AL", "BM", "CB", "CR", "SP", "TB", "TR", "ME", "MO", "WI")
   
   vars_order = c("iceoff", "straton", "energy", "schmidt", "stratoff", "iceon",
-                 "drsif_surfMin",  
+                 "drsif_springSurfMin",  
                  "totnuf_surfMin",
                  "totpuf_surfMin", 
                  "minimum_oxygen", "secchi_max", "zoop_max")

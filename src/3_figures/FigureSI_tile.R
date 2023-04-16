@@ -1,46 +1,48 @@
 
 figureSI_tile <- function(path_in, path_out) {
   dat = read_csv(path_in) 
-  # |> 
-  #   mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) # filter out dates when peak is greater than beginning and end
-  #   
-  
+
   vars_order = c("iceoff", "straton", "stability", "energy", "schmidt", "stratoff", "iceon",
-                 "drsif_surfMin",  "drsif_surfMax", 
                  
-                 "totnuf_surfMin", 'totnuf_surfMax', 
-                 'nh4_surfMin', 'nh4_surfMax',
-                 'no3no2_surfMin', 'no3no2_surfMax',
-                 "totpuf_surfMin", 'totpuf_surfMax', 
-                 'drp_surfMin','drp_surfMax',
+                 "drsif_surfMin", "drsif_springSurfMin",
+                 "totnuf_surfMin", 
+                 "totnf_surfMin",
+                 'nh4_surfMin', 
+                 'no3no2_surfMin', 
+                 
+                 'totpf_surfMin',
+                 "totpuf_surfMin", 
+                 'drp_surfMin',
                  'doc_surfMin','doc_surfMax', 
                  "ph_surfMin","ph_surfMax",
-                 "minimum_oxygen", "secchi_max", "secchi_min", "zoop_max",
-                 "drsif_springSurfMin","zoop_springmax","secchi_springmax")
+                 
+                 "minimum_oxygen", "secchi_max", "secchi_min", "zoop_max")
   
   vars_labels = c("Ice off", "Strat onset", "Stability", "Energy", "Schmidt", 'Strat offset','Ice on',
-                  "drsif_surfMin",  "drsif_surfMax", 
                   
-                  "totnuf_surfMin", 'totnuf_surfMax', 
-                  'nh4_surfMin', 'nh4_surfMax',
-                  'no3no2_surfMin', 'no3no2_surfMax',
+                  "drsif_surfMin", "drsif_springSurfMin",
+                  "totnuf_surfMin", 
+                  "totnf_surfMin",
+                  'nh4_surfMin', 
+                  'no3no2_surfMin', 
                   
-                  "totpuf_surfMin", 'totpuf_surfMax', 
-                  'drp_surfMin','drp_surfMax',
+                  'totpf_surfMin',
+                  "totpuf_surfMin", 
+                  'drp_surfMin',
                   'doc_surfMin','doc_surfMax', 
                   "ph_surfMin","ph_surfMax",
                   
-                  'Oxygen min',  'Secchi max', 'Secchi min', 'Zoop max', 
-                  'Si spring min', 'Zoop spring max', 'Secchi spring max')
+                  'Oxygen min',  'Secchi max', 'Secchi min', 'Zoop max')
   
   
   lakes_order = c("AL", "BM", "CR", "SP","TR", "CB", "TB", "ME", "MO", "WI")
   
-  test = dat |> 
+  dat.summary = dat |> 
     filter(lakeid != 'FI') |> 
     filter(!is.na(dayWeibull)) |> #filter out actual NAs (not enough data, not to be confused with -999)
     group_by(lakeid, metric) |> 
     summarise(n = n(), real = sum(weibull.max == TRUE), per = real/n, r2.median = median(weibull.r2, na.rm = T)) |> 
+    filter(n > 10) |> 
     mutate(lakeid = factor(lakeid, levels = lakes_order)) |> 
     mutate(metric = factor(metric, levels = rev(vars_order), labels = rev(vars_labels))) |> 
     filter(!is.na(metric)) |> 
@@ -58,9 +60,9 @@ figureSI_tile <- function(path_in, path_out) {
   
   
   makeTile <- function(usevars) {
-    ggplot(test |> filter(metric %in% usevars)) +
+    ggplot(dat.summary |> filter(metric %in% usevars)) +
       geom_tile(aes(x = lakeid, y = metric, fill = fit), alpha = 0.8, color = NA) +
-      geom_tile(data = test |> filter(per >= 0.8, metric %in% usevars), aes(x = lakeid, y = metric), 
+      geom_tile(data = dat.summary |> filter(per >= 0.7, metric %in% usevars), aes(x = lakeid, y = metric), 
                 fill = NA, color = 'black', linewidth = 0.5) +
       geom_text(aes(x = lakeid, y = metric, label = round(r2.median,2)), size = 2.2) +
       scale_fill_manual(values = c('#f5e3e1','#f0a689','#e3c54f','#63ab7f'), 
@@ -74,24 +76,25 @@ figureSI_tile <- function(path_in, path_out) {
   usevars = c("Ice off", "Strat onset", "Energy", "Schmidt", 'Strat offset','Ice on')
   p1 = makeTile(usevars); p1
   
-  usevars = c("drsif_surfMin",  "drsif_surfMax", 
-              
-              "totnuf_surfMin", 'totnuf_surfMax', 
-              'nh4_surfMin', 'nh4_surfMax',
-              'no3no2_surfMin', 'no3no2_surfMax',
-              
-              "totpuf_surfMin", 'totpuf_surfMax', 
-              'drp_surfMin','drp_surfMax',
-              'doc_surfMin','doc_surfMax',
-              "ph_surfMin","ph_surfMax")
+  usevars = c("drsif_surfMin", "drsif_springSurfMin",
+         "totnuf_surfMin", 
+         "totnf_surfMin",
+         'nh4_surfMin', 
+         'no3no2_surfMin', 
+         
+         'totpf_surfMin',
+         "totpuf_surfMin", 
+         'drp_surfMin',
+         
+         'doc_surfMin','doc_surfMax', 
+         "ph_surfMin","ph_surfMax")
   p2 = makeTile(usevars)
   
-  usevars = c('Oxygen min',  'Secchi max', 'Secchi min', 'Zoop max', 
-              'Secchi spring max', 'Zoop spring max', 'Si spring min')
+  usevars = c('Oxygen min',  'Secchi max', 'Secchi min', 'Zoop max')
   p3 = makeTile(usevars)
   
   ################################ Join ################################
-  p1/p2/p3 + plot_layout(heights = c(4, 14, 7), guides = 'collect')
+  p1/p2/p3 + plot_layout(heights = c(6, 12, 4), guides = 'collect')
   
   ggsave(filename = path_out, width = 6, 
          height = 6, dpi = 500)        
@@ -100,34 +103,29 @@ figureSI_tile <- function(path_in, path_out) {
 
 figureSI_tile2 <- function(path_in, path_out) {
   dat = read_csv(path_in) 
-  # |> 
-  #   mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) # filter out dates when peak is greater than beginning and end
-  # 
+  
   vars_order = c("iceoff", "straton", "stability", "energy", "schmidt", "stratoff", "iceon",
-                 "drsif_surfMin",  
+                 "drsif_surfMin", 
+                 "drsif_springSurfMin",  
                  "totnuf_surfMin",
                  "totpuf_surfMin", 
-                 "minimum_oxygen", "secchi_max", "secchi_min", "zoop_max",
-                 "drsif_springSurfMin","zoop_springmax","secchi_springmax")
+                 "minimum_oxygen", "secchi_max", "zoop_max")
   
   vars_labels = c("Ice off", "Strat onset", "Stability", "Energy", "Schmidt", 'Strat offset','Ice on',
-                  "Silica min",  
+                  "Silica min",  'Si spring min',
                   "TN min",
                   "TP min", 
-                  'Oxygen min',  'Secchi max', 'Secchi min', 'Zoop max', 
-                  'Si spring min', 'Zoop spring max', 'Secchi spring max')
+                  'Oxygen min',  'Secchi max', 'Zoop max')
   
   
   lakes_order = c("AL", "BM", "CR", "SP","TR", "CB", "TB", "ME", "MO", "WI")
   
-  test = dat |> 
+  dat.summary = dat |> 
     filter(lakeid != 'FI') |> 
-    # group_by(lakeid, metric) |> 
-    # filter(sum(!is.na(dayWeibull)) > 5) |> # we need some data!
-    # ungroup() |> 
     filter(!is.na(dayWeibull)) |> #filter out actual NAs (not enough data, not to be confused with -999)
     group_by(lakeid, metric) |> 
     summarise(n = n(), real = sum(weibull.max == TRUE), per = real/n, r2.median = median(weibull.r2, na.rm = T)) |> 
+    filter(n > 10) |> 
     mutate(lakeid = factor(lakeid, levels = lakes_order)) |> 
     mutate(metric = factor(metric, levels = rev(vars_order), labels = rev(vars_labels))) |> 
     filter(!is.na(metric)) |> 
@@ -145,9 +143,9 @@ figureSI_tile2 <- function(path_in, path_out) {
   
   
   makeTile <- function(usevars) {
-    ggplot(test |> filter(metric %in% usevars)) +
+    ggplot(dat.summary |> filter(metric %in% usevars)) +
       geom_tile(aes(x = lakeid, y = metric, fill = fit), alpha = 0.8, color = NA) +
-      geom_tile(data = test |> filter(per >= 0.8, metric %in% usevars), aes(x = lakeid, y = metric), 
+      geom_tile(data = dat.summary |> filter(per >= 0.7, metric %in% usevars), aes(x = lakeid, y = metric), 
                 fill = NA, color = 'black', linewidth = 0.5) +
       geom_text(aes(x = lakeid, y = metric, label = round(r2.median,2)), size = 2.2) +
       scale_fill_manual(values = c('#f5e3e1','#f0a689','#e3c54f','#63ab7f'), 
@@ -161,7 +159,7 @@ figureSI_tile2 <- function(path_in, path_out) {
   usevars = c("Strat onset", "Energy", "Schmidt", 'Strat offset')
   p1 = makeTile(usevars); p1
   
-  usevars = c("Silica min",  
+  usevars = c('Si spring min',
               "TN min",
               "TP min")
   p2 = makeTile(usevars)

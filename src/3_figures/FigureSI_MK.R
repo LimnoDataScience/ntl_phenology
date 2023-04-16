@@ -5,7 +5,7 @@ library(wql)
 figureSI_MK <- function(path_in, path_out) {
   
   vars_order = c("iceoff", "straton", "energy", "schmidt", "stratoff", "iceon",
-                 "drsif_surfMin",  
+                 "drsif_springSurfMin",  
                  "totnuf_surfMin",
                  "totpuf_surfMin", 
                  "minimum_oxygen", "secchi_max", "zoop_max")
