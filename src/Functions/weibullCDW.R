@@ -29,9 +29,9 @@ weibullCDW <- function(p, quantile = 0.05) {
     
     # Not symmetric 
     q      <- c(quantile, 1 - quantile)
-    left   <- aweibull(lower = 0,    upper = tMid, p = c(pp, (p[4]+1) * (1-p[1])))
+    left   <- aweibull(lower = xminuser,    upper = tMid, p = c(pp, (p[4]+1) * (1-p[1])))
     right  <- aweibull(lower = tMid, upper = xmaxuser,  p = c(pp,  p[4]))
-    tBegin <- uniroot(fzero, interval=c(0, tMid),   q = q[1] * left,  p = c(pp, (p[4]+1) * (1-p[1])))$root
+    tBegin <- uniroot(fzero, interval=c(xminuser, tMid),   q = q[1] * left,  p = c(pp, (p[4]+1) * (1-p[1])))$root
     tEnd   <- uniroot(fzero, interval=c(tMid, xmaxuser), q = q[2] * right, p = c(pp,  p[4]), x0 = tMid)$root
     
     list(x = c(tMid=tMid, tBegin=tBegin, tEnd=tEnd),

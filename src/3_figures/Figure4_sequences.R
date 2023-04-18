@@ -11,17 +11,9 @@ figure4 <- function(path_in, path_out, path_out2) {
   dat <-  read_csv(path_in)
 
   df <- dat %>%
-    filter(!lakeid %in% c('FI')) |> 
-    mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) |> # filter out dates when peak is greater than beginning and end
-    filter(weibull.r2 > 0.7) |> 
-    mutate(trophic = ifelse(lakeid %in% c('ME', 'MO'), 'eutrophic',
-                            ifelse(lakeid %in% c('CB', 'TB'), 'dystrophic', 
-                                   ifelse(lakeid %in% c('CR', 'SP'), 'oligotrophic',
-                                          'rest')))) %>%
-    group_by(trophic, metric) %>%
-    mutate(daynum_centered = dayWeibull - mean(dayWeibull, na.rm = T),
-      mean_trophic = mean(dayWeibull, na.rm = T)) |> 
-    dplyr::select(-weibull.r2)
+    filter(lakeid != 'FI') |> 
+    mutate(diffDays = abs(daynum - dayWeibull)) |> 
+    filter(weibull.r2 > 0.7 | diffDays <= 30) 
   
   ###############################
   diss <- c()
@@ -82,7 +74,7 @@ figure4 <- function(path_in, path_out, path_out2) {
              aes(x = event_id, y = (n*100)/max(n), fill = as.factor(event))) +
       geom_bar(stat = 'identity') + ylab('Occurrence (%)') +
       scale_fill_manual(values = rev(met.brewer("Redon", metric_n)), name = 'Metric', 
-                        labels = c('Ice off', 'Strat onset','Secchi max','Stability', 'Oxygen min', 'Strat offset','Ice on')) + 
+                        labels = c('Ice-off', 'Strat onset','Secchi max','Stability', 'Oxygen min', 'Strat offset','Ice-on')) + 
       scale_y_continuous(expand = c(0,0)) +
       xlab('') +
       theme_bw(base_size = 9) +

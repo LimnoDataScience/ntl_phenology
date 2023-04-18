@@ -5,21 +5,24 @@ library(wql)
 figureSI_MK <- function(path_in, path_out) {
   
   vars_order = c("iceoff", "straton", "energy", "schmidt", "stratoff", "iceon",
-                 "drsif_springSurfMin",  
+                 "drsif_springSurfMin", 
                  "totnuf_surfMin",
                  "totpuf_surfMin", 
+                 "ph_surfMax",
                  "minimum_oxygen", "secchi_max", "zoop_max")
   
-  vars_labels = c("Ice off", "Strat onset", "Energy", "Schmidt", 'Strat offset','Ice on',
+  vars_labels = c("Ice-off", "Strat onset", "Energy", "Schmidt", 'Strat offset','Ice-on',
                   "Silica min",  
                   "TN min",
                   "TP min", 
+                  "pH max",
                   'Oxygen min',  'Secchi max', 'Zoop max')
   
   dat = read_csv(path_in) |> filter(lakeid != 'FI') |> 
-    mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) |> # filter out dates when peak is greater than beginning and end
-    mutate(dayWeibull = if_else(weibull.r2 > 0.7, dayWeibull, NA_real_))
- 
+    mutate(diffDays = abs(daynum - dayWeibull)) |> 
+    # mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) |> # filter out dates when peak is greater than beginning and end
+    filter(weibull.r2 > 0.7 | diffDays <= 30)
+  
   # simple linear trend with Weibull day 
   lm_slopes = dat %>% 
     filter(!is.na(daynum)) %>% 
@@ -39,7 +42,8 @@ figureSI_MK <- function(path_in, path_out) {
                                         '#d1e5f0','#67a9cf','#2166ac'),
                                         n.breaks=9, na.value = "transparent") +
     theme(axis.text.x = element_text(angle = 45, hjust=1)) +
-    labs(x="", title = "lm() sig. trends (p < 0.05)", fill="lm slope\n days/year")
+    theme(axis.title.x = element_blank())
+    # labs(x="", title = "lm() sig. trends (p < 0.05)", fill="lm slope\n days/year")
   
   # try with Mann-Kendall
   mannken_sen_slope = dat %>% 
@@ -113,11 +117,7 @@ figureSI_MK <- function(path_in, path_out) {
     geom_smooth(data = tssig |> filter(!is.na(sen.slope.Weibull)), aes(x=year, y=dayWeibull), method = 'lm', color = 'black') +
     geom_smooth(data = tssig |> filter(!is.na(sen.slope.daynum)), aes(x=year, y=dayWeibull), method = 'lm', color = 'red3')
   
-  
-  # tssig |> filter(metric == 'Oxygen min', lakeid == 'MO') |> 
-  #   ggplot() +
-  #   geom_point(aes(x = year, y = dayWeibull))
-  
+ 
 }
 
 

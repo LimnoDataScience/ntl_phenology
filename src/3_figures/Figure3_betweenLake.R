@@ -4,22 +4,26 @@ library(scales)
 
 figure3 <- function(path_in, path_out, path_out2) {
   
-  dat = read_csv(path_in) |> filter(lakeid != 'FI') |> 
-    mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) |> # filter out dates when peak is greater than beginning and end
-    filter(weibull.r2 > 0.7)
+  dat = read_csv(path_in) |> 
+    filter(lakeid != 'FI') |> 
+    mutate(diffDays = abs(daynum - dayWeibull)) |> 
+    # mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) |> # filter out dates when peak is greater than beginning and end
+    filter(weibull.r2 > 0.7 | diffDays <= 30)
   
   lakes_order = c("AL", "BM", "CB", "CR", "SP", "TB", "TR", "ME", "MO", "WI")
   
   vars_order = c("iceoff", "straton", "energy", "schmidt", "stratoff", "iceon",
-                 "drsif_springSurfMin",  
+                 "drsif_springSurfMin", 
                  "totnuf_surfMin",
                  "totpuf_surfMin", 
+                 "ph_surfMax",
                  "minimum_oxygen", "secchi_max", "zoop_max")
   
-  vars_labels = c("Ice off", "Strat onset", "Energy", "Schmidt", 'Strat offset','Ice on',
+  vars_labels = c("Ice-off", "Strat onset", "Energy", "Schmidt", 'Strat offset','Ice-on',
                   "Silica min",  
                   "TN min",
                   "TP min", 
+                  "ph max",
                   'Oxygen min',  'Secchi max', 'Zoop max')
   
   ##### Functions #####
@@ -69,7 +73,7 @@ figure3 <- function(path_in, path_out, path_out2) {
                    alpha = 0.5, position = position_dodge(0.2), linewidth = 0.2, outlier.size = 1, outlier.stroke = 0.2) +
       geom_point(data = df1.Cor |> filter(corP <= 0.05), aes(x =  as.Date('2019-03-01'), y = metric), size = 1, shape = 8) +
       geom_hline(aes(yintercept = 3.5), linetype = 2, linewidth = 0.2) +
-      geom_hline(aes(yintercept = 6.5), linetype = 2, linewidth = 0.2) +
+      geom_hline(aes(yintercept = 7.5), linetype = 2, linewidth = 0.2) +
       scale_fill_manual(values = colors) + 
       scale_color_manual(values = colors) + 
       scale_x_date(labels = date_format("%b"),limits = c(as.Date('2019-03-01'), as.Date('2020-01-01')),

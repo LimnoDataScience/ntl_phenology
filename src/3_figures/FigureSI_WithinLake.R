@@ -9,23 +9,27 @@
 # the plot is saved as a ".png" file.
 
 figureSI_withinLake <- function(path_in, path_out) {
+  
   vars_order = c("iceoff", "straton", "energy", "schmidt", "stratoff", "iceon",
-                 "drsif_springSurfMin",  
+                 "drsif_springSurfMin", 
                  "totnuf_surfMin",
                  "totpuf_surfMin", 
+                 "ph_surfMax",
                  "minimum_oxygen", "secchi_max", "zoop_max")
   
-  vars_labels = c("Ice off", "Strat onset", "Energy", "Schmidt", 'Strat offset','Ice on',
+  vars_labels = c("Ice-off", "Strat onset", "Energy", "Schmidt", 'Strat offset','Ice-on',
                   "Silica min",  
                   "TN min",
                   "TP min", 
+                  "ph max",
                   'Oxygen min',  'Secchi max', 'Zoop max')
   
   # Read in data #
   dat = read_csv(path_in) |> 
-    mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) |> # filter out dates when peak is greater than beginning and end
-    filter(weibull.r2 > 0.7) |> 
-    filter(lakeid != 'FI') |> 
+    filter(lakeid != 'FI') |>
+    mutate(diffDays = abs(daynum - dayWeibull)) |> 
+    # mutate(weibull.r2 = if_else(weibull.max == FALSE, NA_real_, weibull.r2)) |> # filter out dates when peak is greater than beginning and end
+    filter(weibull.r2 > 0.7 | diffDays <= 30) |> 
     filter(metric %in% vars_order)
   
   ################################ Correlation ################################
@@ -132,10 +136,10 @@ figureSI_withinLake <- function(path_in, path_out) {
   plotcor <- function(uselakes, usecolors) {
     
     box1 = 6.5
-    box2 = 9.5
+    box2 = 10.5
     
     coff.df |> filter(lakeid %in% uselakes) |> 
-      # need a row with ice on so axes match up in figure 
+      # need a row with Ice-on so axes match up in figure 
       bind_rows(emptyDF) |> 
     
     # coff.df |> mutate(if_else(lakeid %in% uselakes, ))  
