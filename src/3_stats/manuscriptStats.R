@@ -1,3 +1,9 @@
+vars_order = c("iceoff", "straton", "energy", "schmidt", "stratoff", "iceon",
+               "drsif_springSurfMin", 
+               "totnuf_surfMin",
+               "totpuf_surfMin", 
+               "ph_surfMax",
+               "minimum_oxygen", "secchi_max", "zoop_max")
 
 ##### Paper stats #######
 path_in = "Data/final_metric_files/final_combined.csv"
@@ -26,17 +32,10 @@ dat |>
   summarise(n = n(), total = first(total), kept = n/total, removed = 1 - kept)  
 
 
-vars_order = c("iceoff", "straton", "energy", "schmidt", "stratoff", "iceon",
-               "drsif_springSurfMin", 
-               "totnuf_surfMin",
-               "totpuf_surfMin", 
-               "ph_surfMax",
-               "minimum_oxygen", "secchi_max", "zoop_max")
-
+######## Median days
 dat |> 
   filter(metric %in% vars_order) |> 
-  mutate(total = n()) |> 
-  filter(weibull.r2 > 0.7 | diffDays <= 30) |> 
-  group_by() |>
-  summarise(n = n(), total = first(total), per = n/total)  
-
+  filter(lakeid %in% c("AL", "BM", "CR", "SP", "TR", "TB", "CB")) |> 
+  group_by(metric) |> 
+  summarise(d = median(dayWeibull)) |> 
+  mutate(date = as.Date(paste0('2001-01-',d)))

@@ -38,14 +38,12 @@ figure2 <- function(path_in, path_out) {
       mutate(lakeid = factor(lakeid, levels = lakes_order),
              metric = factor(metric, levels = rev(vars_order), labels = rev(vars_labels))) %>% 
       ggplot() + 
-      stat_density_ridges(aes(x = as.Date(daynum, origin = as.Date('2019-01-01')), 
-                              y= metric, col = metric, fill = metric), 
-                          alpha = 0.3, quantile_lines = T, quantiles = 2, size = 0.2, linetype = 2) +
+      # stat_density_ridges(aes(x = as.Date(daynum, origin = as.Date('2019-01-01')), 
+      #                         y= metric, col = metric, fill = metric), 
+      #                     alpha = 0.3, quantile_lines = T, quantiles = 2, size = 0.2, linetype = 2) +
       stat_density_ridges(aes(x = as.Date(dayWeibull, origin = as.Date('2019-01-01')), 
                               y= metric, col = metric, fill = metric), 
                           alpha = 0.5, quantile_lines = T, quantiles = 2, size = 0.3) +
-      # scale_fill_manual(values=met.brewer("Archambault", length(vars_order))) + 
-      # scale_color_manual(values=met.brewer("Archambault", length(vars_order))) +
       scale_fill_manual(values = rev(c(rep('#e3d35d',6), rep('#97bab7',4), rep('#bf7058',3)))) +
       scale_color_manual(values = rev(c(rep('#e3d35d',6), rep('#97bab7',4), rep('#bf7058',3)))) +
       scale_x_date(labels = date_format("%b")) +
