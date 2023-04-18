@@ -38,4 +38,11 @@ dat |>
   filter(lakeid %in% c("AL", "BM", "CR", "SP", "TR", "TB", "CB")) |> 
   group_by(metric) |> 
   summarise(d = median(dayWeibull)) |> 
-  mutate(date = as.Date(paste0('2001-01-',d)))
+  mutate(date = as.Date(d, origin = as.Date('2019-01-01')))
+
+dat |> 
+  filter(metric %in% vars_order) |> 
+  filter(lakeid %in% c("ME", "MO")) |> 
+  group_by(metric) |> 
+  summarise(d = median(dayWeibull, na.rm = T)) |> 
+  mutate(date = as.Date(d, origin = as.Date('2019-01-01')))
