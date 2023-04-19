@@ -21,6 +21,7 @@ source("src/3_figures/Figure3_betweenLake.R")
 source("src/3_figures/Figure4_sequences.R")
 source("src/3_figures/FigureSI_WithinLake.R")
 source("src/3_figures/FigureSI_MK.R")
+source("src/3_figures/FigureSI_PEGyears.R")
 
 
 p3_targets_list <- list(
@@ -72,6 +73,11 @@ p3_targets_list <- list(
     name = figureSI_MK_png,
     figureSI_MK(path_in = combine_final_files_csv,
                 path_out = "Figures_manuscript/FigureSI_MK.png")
+  ),
+  tar_target(
+    name = figureSI_PEGyears_png,
+    figureSI_PEG(path_in = combine_final_files_csv,
+                path_out = 'Figures_manuscript/FigureSI_PEGyears.png')
   )
 
 )
