@@ -112,12 +112,12 @@ figure1 <- function(path_out) {
     
     if(weibull.max == FALSE){
       p1 = p1 + 
-        geom_point(data = df2[1,], aes(x = as.Date(daynum, origin = as.Date('2020-01-01')), y = secnview), color = 'salmon1', shape = 15) +
-        geom_path(data = fit2, aes(x = as.Date(x, origin = as.Date('2020-01-01')), y = newy), color = 'salmon1') +
+        geom_point(data = df2[1,], aes(x = as.Date(daynum, origin = as.Date('2020-01-01')), y = secnview), color = '#e39f46', shape = 15) +
+        geom_path(data = fit2, aes(x = as.Date(x, origin = as.Date('2020-01-01')), y = newy), color = '#e39f46') +
         geom_point(data = smd2.out, aes(x = as.Date(x, origin = as.Date('2020-01-01')), y = y), 
-                   fill = 'salmon1', shape = 23, stroke = 0.2, size = c(4,2,2)) +
+                   fill = '#e39f46', shape = 23, stroke = 0.2, size = c(4,2,2)) +
         annotate(geom = 'text', x = as.Date(5, origin = as.Date('2020-03-01')), y = Inf, 
-                 label = paste0('r^2 == ', round(res2$r2, 2)), hjust = 0, vjust = 3, parse = TRUE, color = 'salmon1', size = r2size)
+                 label = paste0('r^2 == ', round(res2$r2, 2)), hjust = 0, vjust = 3, parse = TRUE, color = '#e39f46', size = r2size)
     }
     
     return(p1)
