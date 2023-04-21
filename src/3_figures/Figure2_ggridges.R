@@ -1,5 +1,5 @@
 
-### Figure 1 ###
+## ggridges figure of distributions of phenological metrics 
 
 figure2 <- function(path_in, path_out) {
   dat = read_csv(path_in) |>  
@@ -76,9 +76,7 @@ figure2 <- function(path_in, path_out) {
       geom_jitter(aes(y = metric, x = day.IQR, fill = metric), shape = 21, linewidth = 1.5, width = 0.2, height = 0, stroke = 0.2) +
       xlab('IQR (days)') +
       scale_fill_manual(values = rev(c(rep('#e3d35d',6), rep('#97bab7',4), rep('#bf7058',3)))) +
-      # scale_fill_manual(values=met.brewer("Archambault", length(vars_order))) + 
       theme_minimal(base_size = 8) +
-      # labs(title = 'IQR (days)') +
       xlim(0,125) +
       theme(axis.text.y = element_blank(),
             axis.title = element_blank(),
@@ -116,10 +114,7 @@ figure2 <- function(path_in, path_out) {
       panel.background = element_rect(fill='transparent', color = NA), #transparent panel bg
       plot.background = element_rect(fill='transparent', color=NA) #transparent plot bg
     )
-  
-  # ggsave('Figures_manuscript/Figure1_v2.png',
-  #        width=6, height=8, units="in", dpi=500, bg='transparent')
-  
+
   ggsave(path_out,
          width=6, height=8, units="in", dpi=500, bg='transparent')
   

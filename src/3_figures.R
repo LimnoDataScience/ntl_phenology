@@ -22,21 +22,10 @@ source("src/3_figures/Figure4_sequences.R")
 source("src/3_figures/FigureSI_WithinLake.R")
 source("src/3_figures/FigureSI_MK.R")
 source("src/3_figures/FigureSI_PEGyears.R")
+source("src/3_figures/FigureSI_histFit.R")
 
 
 p3_targets_list <- list(
-  # tar_target(
-  #   name = figure1_png,
-  #   figure1(path_in = 'Data/analysis_ready/final_combined_dates_filled_v2.csv',
-  #     path_out = "Figures_manuscript/Figure1.png")
-  # ),
-  
-  tar_target(name = vars_order2, c("iceoff", "straton", "energy", "schmidt", "stratoff", "iceon",
-                                   "drsif_surfMin", "nh4_surfMin", "no3no2_surfMin", 'totpuf_surfMin', 'doc_surfMax',
-                                   "minimum_oxygen", "secchi_max", "secchi_springmax")),
-  tar_target(name = vars_labels2, c("Ice off", "Strat onset", "Energy", "Schmidt", 'Strat offset','Ice on',
-                                    'Si surf min', 'NH4 surf min', 'NO3 surf min', 'TP surf min', 'DOC surf max',
-                                    'Oxygen min', 'Secchi max', 'Secchi spring max')),
   tar_target(
     name = figure1_png,
     figure1(path_out = "Figures_manuscript/Figure1_weibull.png")
@@ -78,6 +67,11 @@ p3_targets_list <- list(
     name = figureSI_PEGyears_png,
     figureSI_PEG(path_in = combine_final_files_csv,
                 path_out = 'Figures_manuscript/FigureSI_PEGyears.png')
+  ),
+  tar_target(
+    name = figureSI_histFit_png,
+    figureSI_histFit(path_in = combine_final_files_csv,
+                 path_out = 'Figures_manuscript/FigureSI_histFit.png')
   )
 
 )
