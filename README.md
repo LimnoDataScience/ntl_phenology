@@ -5,4 +5,4 @@ Associated with manuscript **The Phenology of North-Temperate Lakes: Examining V
 
 Long-term lake data were obtained from the North Temperate Lakes Long-Term Ecological Research program (#DEB-1440297 and #DEB-2025982).
 
-![](Figures_manuscript/Figure2_AI.png)<!-- -->
+![](Figures_manuscript/Figures_AI.png)<!-- -->
