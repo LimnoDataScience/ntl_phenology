@@ -27,7 +27,6 @@ Package ID: knb-lter-ntl.31.29 Cataloging System:https://pasta.edirepository.org
 Data set title: North Temperate Lakes LTER: Secchi Disk Depth; Other Auxiliary Base Crew Sample Data 1981 - current.
 "https://pasta.lternet.edu/package/data/eml/knb-lter-ntl/31/29/5a5a5606737d760b61c43bc59460ccc9" 
 
-
 Package ID: knb-lter-ntl.90.33 Cataloging System:https://pasta.edirepository.org.
 Data set title: North Temperate Lakes LTER: Zooplankton - Madison Lakes Area 1997 - current.
 "https://pasta.lternet.edu/package/data/eml/knb-lter-ntl/90/33/5880c7ba184589e239aec9c55f9d313b"
