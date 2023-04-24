@@ -2,12 +2,16 @@
 zoopDensity <- function(ice_file, strat_file, path_out) {
 
   #### Download southern lake zooplankton data from EDI ####
+  # Package ID: knb-lter-ntl.90.33 Cataloging System:https://pasta.edirepository.org.
+  # Data set title: North Temperate Lakes LTER: Zooplankton - Madison Lakes Area 1997 - current.
   inUrl1 <- "https://pasta.lternet.edu/package/data/eml/knb-lter-ntl/90/33/5880c7ba184589e239aec9c55f9d313b"
   infile1 <- tempfile()
   download.file(inUrl1, infile1, method = "curl")
   dt1 <- read_csv(infile1)
   
   #### Download northern lake zooplankton data from EDI ####
+  # Package ID: knb-lter-ntl.37.36 Cataloging System:https://pasta.edirepository.org.
+  # Data set title: North Temperate Lakes LTER: Zooplankton - Trout Lake Area 1982 - current.
   inUrl1  <- "https://pasta.lternet.edu/package/data/eml/knb-lter-ntl/37/36/c4b652eea76cd431ac5fd3562b1837ee" 
   infile1 <- tempfile()
   download.file(inUrl1,infile1,method="curl")
