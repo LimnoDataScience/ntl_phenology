@@ -46,5 +46,5 @@ library(targets)
 tar_make()
 ```
 
-### Phenological metrics across lakes
+## Output: Phenological metrics across lakes
 ![](Figures_manuscript/Figures_AI.png)<!-- -->
