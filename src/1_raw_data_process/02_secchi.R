@@ -3,6 +3,8 @@ secchi <- function(ice_file, strat_file, path_out) {
   # Updated 2023-03-10 - Hilary Dugan
   
   #################### LOAD SECCHI DATA ####################
+  # Package ID: knb-lter-ntl.31.29 Cataloging System:https://pasta.edirepository.org.
+  # Data set title: North Temperate Lakes LTER: Secchi Disk Depth; Other Auxiliary Base Crew Sample Data 1981 - current.
   inUrl1 <- "https://pasta.lternet.edu/package/data/eml/knb-lter-ntl/31/29/5a5a5606737d760b61c43bc59460ccc9"
   infile1 <- tempfile()
   download.file(inUrl1, infile1, method = "libcurl")

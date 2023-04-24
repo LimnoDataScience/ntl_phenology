@@ -18,6 +18,8 @@ nutrients <- function(ice_file, strat_file, path_out) {
   }
   
   #################### LOAD DATA ####################
+  # Package ID: knb-lter-ntl.1.57 Cataloging System:https://pasta.edirepository.org.
+  # Data set title: North Temperate Lakes LTER: Chemical Limnology of Primary Study Lakes: Nutrients, pH and Carbon 1981 - current.
   inUrl1 <- "https://pasta.lternet.edu/package/data/eml/knb-lter-ntl/1/57/802d63a4c35050b09ef6d1e7da3efd3f"
   infile1 <- tempfile()
   download.file(inUrl1, infile1, method = "curl")
