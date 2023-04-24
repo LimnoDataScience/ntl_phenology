@@ -45,7 +45,7 @@ secchi_csv|stem|7cda7065f783956b|898e8a0195ead2f5|72b185d306a03b2e|1053825497|Da
 vars_label|stem|c1ed87b3d30a9fd6|a5e29de1cff94365|a3dad144c40657ed|-1723395617||t19366.8135546557s|274be9fab5df2fde|169|rds|local|vector|||0.017||
 vars_labels|stem|2897339bf92c654f|e8a76156ce53db8e|a3dad144c40657ed|1212328704||t19368.6812897728s|ec519ceac14e6e00|175|rds|local|vector|||0||
 vars_labels2|stem|533f996541e0398c|c54683dd1967f8e4|a3dad144c40657ed|-391815847||t19468.7324800782s|274be9fab5df2fde|169|rds|local|vector|||2.059|package MetBrewer was built under R version 4.1.2. package ggridges was built under R version 4.1.2. package ggcorrplot was built under R version 4.1.2. package corrr was built under R version 4.1.2. package rstatix was built under R version 4.1.2. package ggtext was built under R version 4.1.2. package TraMineR was built under R version 4.1.2. package seqHMM was built under R version 4.1.2|
-vars_order|stem|6e708ec10c1d0343|0fe0e1aec4c0ed24|a3dad144c40657ed|382671554||t19471.6414248123s|81a1853ddabe4117|256|rds|local|vector|||0||
+vars_order|stem|6e708ec10c1d0343|0fe0e1aec4c0ed24|a3dad144c40657ed|382671554||t19471.7870934984s|81a1853ddabe4117|256|rds|local|vector|||0.001||
 vars_order2|stem|cd9be7679ee9eec3|fdf35a2dedf67ab3|a3dad144c40657ed|-1189857479||t19468.7325325152s|ef5bb583e5bfa4cd|174|rds|local|vector|||0.001||
 weibull.year|function|2c3bd6fcc565bd70|||||||||||||||
 weibullCDW|function|dfe9a0c613fa6564|||||||||||||||
