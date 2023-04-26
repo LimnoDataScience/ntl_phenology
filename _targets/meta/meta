@@ -1,8 +1,8 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|repository|iteration|parent|children|seconds|warnings|error
 combine_final_files|function|588b0525363fb042|||||||||||||||
 combine_final_files_csv|stem|2c0cadfb3b58eb1c|7ae3aaa8b4293d38|53e4af95129552e9|885137793|Data/final_metric_files/final_combined.csv|t19471.6414962884s|541f36e30fcb05dc|685403|file|local|vector|||0.248||
-figure1|function|84fb3d3f0cc955bc|||||||||||||||
-figure1_png|stem|676a8aa347a1f73e|cf99e655d968ba05|aeac5f2cf77ba211|-1243988014||t19471.6414920334s|e7d9c43b1c994be3|87|rds|local|vector|||5.776|1m22mRemoved 2 rows containing missing values geom_point.. 1m22mRemoved 2 rows containing missing values geom_point.. 1m22mRemoved 1 rows containing missing values geom_point.|
+figure1|function|97216e75eb24a9f1|||||||||||||||
+figure1_png|stem|676a8aa347a1f73e|cf99e655d968ba05|15381288c5e05679|-1243988014||t19473.615862413s|e7d9c43b1c994be3|87|rds|local|vector|||4.672|1m22mRemoved 1 rows containing missing values geom_point.. 1m22mRemoved 1 rows containing missing values geom_point.|
 figure1_v2|function|786d0068061f1286|||||||||||||||
 figure1_v2_png|stem|8de1c5408b366e8e|6d09bcf3a4128d87|7039107415e218cf|-501755400||t19463.7840963198s|0b52c5847220add9|82|rds|local|vector|||10.75|1m22mIgnoring unknown parameters linewidth. 1m22mIgnoring unknown parameters linewidth. 1m22mIgnoring unknown parameters linewidth. 1m22mIgnoring unknown parameters linewidth. 1m22mUsing the size aesthietic with geom_segment was deprecated in ggplot2 3.4.0.36mℹ39m Please use the linewidth aesthetic instead.. 1m22mRemoved 4 rows containing missing values geom_point.. 1m22mRemoved 2 rows containing missing values geom_point.. 1m22mRemoved 2 rows containing missing values geom_point.. 1m22mRemoved 2 rows containing missing values geom_point.|
 figure2|function|a25987902918001b|||||||||||||||

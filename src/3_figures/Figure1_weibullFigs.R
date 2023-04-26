@@ -156,13 +156,18 @@ figure1 <- function(path_out) {
     annotate(geom = 'text', x = as.Date(5, origin = as.Date('2020-07-04')), y = Inf,
              label = 'Crystal Lake, 1984', hjust = 0, vjust = 2, color = 'lightblue4', size = 3)
   
-  p4 = plotWeibull(secchi |> filter(lakeid == 'BM', year == 1986)) + 
-    annotate(geom = 'text', x = as.Date(5, origin = as.Date('2020-06-10')), y = Inf, 
-             label = 'Big Muskellunge, 1986', hjust = 0, vjust = 2, color = 'lightblue4', size = 3) 
+  # p4 = plotWeibull(secchi |> filter(lakeid == 'BM', year == 1986)) + 
+  #   annotate(geom = 'text', x = as.Date(5, origin = as.Date('2020-06-10')), y = Inf, 
+  #            label = 'Big Muskellunge, 1986', hjust = 0, vjust = 2, color = 'lightblue4', size = 3) 
   
   p5 = plotWeibull(secchi |> filter(lakeid == 'CB', year == 2006)) + 
     annotate(geom = 'text', x = as.Date(5, origin = as.Date('2020-06-26')), y = 0.8, 
              label = 'Crystal Bog, 2006', hjust = 0, vjust = 2, color = 'lightblue4', size = 3)
+  
+  p4 = plotWeibull(secchi |> filter(lakeid == 'MO', year == 2012)) + 
+    scale_y_continuous(limits = c(0,6.5), expand = expansion(0.1)) +
+    annotate(geom = 'text', x = as.Date(5, origin = as.Date('2020-06-26')), y = Inf, 
+             label = 'Lake Monona, 2012', hjust = 0, vjust = 2, color = 'lightblue4', size = 3)
   
   # patchwork
   p1/p3/p4/p5 + plot_layout(ncol = 2) +
