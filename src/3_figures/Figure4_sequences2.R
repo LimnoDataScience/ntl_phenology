@@ -67,13 +67,18 @@ ggplot(data = df.tot,
   scale_fill_manual(values = rev(met.brewer("Redon", 7)), name = 'Metric', 
                     labels = c('Ice-off', 'Strat onset','Secchi max','Stability', 'Oxygen min', 'Strat offset','Ice-on')) + 
   scale_y_continuous(expand = c(0,0)) +
+  scale_x_continuous(breaks = 1:7, labels = paste0('event ',1:7)) +
   xlab('') +
   facet_wrap(~label, ncol = 2) +
   theme_bw(base_size = 9) +
   theme(axis.title.x = element_blank()) +
   theme(legend.position = 'bottom',
         legend.margin=margin(t = 0, unit='cm'),
-        legend.key.size = unit(0.3,'cm')) +
+        legend.key.size = unit(0.3,'cm'),
+        panel.grid = element_blank(),
+        strip.background = element_rect(fill="white", color = 'transparent'),
+        strip.text = element_text(angle = 0, hjust = 0)
+        ) +
   guides(fill = guide_legend(nrow = 1))
 
 ggsave(filename = 'Figures_manuscript/Figure4_sequences2.png', dpi = 500, width = 6, height = 6)
