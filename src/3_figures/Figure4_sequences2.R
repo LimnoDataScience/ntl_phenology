@@ -81,7 +81,7 @@ ggplot(data = df.tot,
         ) +
   guides(fill = guide_legend(nrow = 1))
 
-ggsave(filename = 'Figures_manuscript/Figure4_sequences2.png', dpi = 500, width = 6, height = 6)
-
+ggsave(filename = 'Figures_manuscript/Figure4_sequences2.png', dpi = 500, width = 6, height = 5)
+ 
 
 
