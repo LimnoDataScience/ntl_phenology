@@ -10,15 +10,13 @@ tar_option_set(packages = c("lubridate",
                             "corrr",
                             "rstatix",
                             "ggtext",
-                            "TraMineR",
-                            # "depmixS4",
-                            "seqHMM"))
+                            "TraMineR"))
 
 source("src/3_figures/Figure1_weibullFigs.R")
 source("src/3_figures/Figure2_tile.R")
 source("src/3_figures/Figure2_ggridges.R")
 source("src/3_figures/Figure3_betweenLake.R")
-source("src/3_figures/Figure4_sequences.R")
+source("src/3_figures/Figure4_sequences2.R")
 source("src/3_figures/FigureSI_WithinLake.R")
 source("src/3_figures/FigureSI_MK.R")
 source("src/3_figures/FigureSI_PEGyears.R")

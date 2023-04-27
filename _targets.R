@@ -23,8 +23,7 @@ tar_option_set(packages = c(
   "corrr",
   "rstatix",
   "ggtext",
-  "TraMineR",
-  "seqHMM"))
+  "TraMineR"))
 
 # Source pipeline
 source("src/1_raw_data_process.R")
